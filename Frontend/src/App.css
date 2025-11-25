@@ -1,0 +1,18 @@
+#root {
+  width: 100%;
+  min-height: 100vh;
+  margin: 0 auto;
+  padding: 1.25rem;
+}
+
+@media (min-width: 640px) {
+  #root {
+    padding: 1.75rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  #root {
+    padding: 2.5rem;
+  }
+}

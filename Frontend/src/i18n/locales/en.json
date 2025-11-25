@@ -1,0 +1,388 @@
+{
+  "nav": {
+    "home": "Home",
+    "docs": "Documentation",
+    "examples": "Examples",
+    "playground": "Playground",
+    "status": "Status",
+    "donate": "Donate",
+    "ariaPrimary": "Primary navigation",
+    "ariaThemeToggle": "Toggle color theme",
+    "ariaOpenMenu": "Open menu",
+    "ariaCloseMenu": "Close menu"
+  },
+  "footer": {
+    "brand": "CorsBridge",
+    "description": "Free CORS proxy by Syrins (syrins.tech)",
+    "navigation": "Navigation",
+    "resources": "Resources",
+    "github": "GitHub",
+    "documentation": "Documentation",
+    "contact": "Contact",
+    "contactEmail": "contact@syrins.tech",
+    "copyright": "© 2025 CorsBridge • Syrins."
+  },
+  "home": {
+    "hero": {
+      "badge": "Forever Free • No Signup",
+      "title": "Bypass CORS in Seconds —",
+      "titleHighlight": "Completely Free",
+      "subtitle": "A global HTTP proxy that instantly eliminates CORS errors. No API key, no account, no limits.",
+      "copyUrl": "Copy URL",
+      "copied": "Copied!",
+      "viewDocs": "View Documentation",
+      "freeNote": "Free forever. No registration required."
+    },
+    "features": {
+      "title": "Why Developers Choose CorsBridge",
+      "subtitle": "The easiest way to handle CORS in production",
+      "free": {
+        "title": "Completely Free",
+        "description": "No API key, no authentication, no rate limits. Use as needed."
+      },
+      "global": {
+        "title": "Global Network",
+        "description": "Distributed across worldwide edge locations for minimal latency."
+      },
+      "developer": {
+        "title": "Developer First",
+        "description": "Simple URL format. Works with every HTTP client. Zero configuration."
+      },
+      "methods": {
+        "title": "All Methods",
+        "description": "Supports GET, POST, PUT, DELETE, PATCH, and custom headers."
+      },
+      "reliable": {
+        "title": "Fast & Reliable",
+        "description": "Automatic failover and redundancy with 99.9% uptime."
+      },
+      "secure": {
+        "title": "Secure",
+        "description": "Your requests are proxied securely with proper SSL/TLS."
+      }
+    },
+    "howItWorks": {
+      "title": "How It Works",
+      "subtitle": "Three simple steps to bypass CORS",
+      "step1": {
+        "title": "Add Target URL",
+        "description": "Append your target URL as a query parameter"
+      },
+      "step2": {
+        "title": "CORS Bypassed",
+        "description": "Our proxy handles CORS automatically"
+      },
+      "step3": {
+        "title": "Receive Response",
+        "description": "Receive data normally in your application"
+      }
+    },
+    "tryLive": {
+      "title": "Try Live",
+      "subtitle": "Test the proxy directly from your browser",
+      "targetUrl": "Target URL",
+      "openPlayground": "Open Full Playground"
+    },
+    "useCases": {
+      "title": "Use Cases",
+      "subtitle": "Perfect for modern web development",
+      "spa": {
+        "title": "SPAs & PWAs",
+        "description": "Build single-page apps without CORS issues"
+      },
+      "prototypes": {
+        "title": "Prototyping",
+        "description": "Quickly build prototypes without backend setup"
+      },
+      "hackathons": {
+        "title": "Hackathons",
+        "description": "Focus on features instead of infrastructure"
+      },
+      "internal": {
+        "title": "Internal Tools",
+        "description": "Connect any API from internal dashboards"
+      }
+    },
+    "cta": {
+      "title": "Ready to Get Started?",
+      "subtitle": "No signup required. Start using CorsBridge in your next project instantly.",
+      "readDocs": "Read Documentation",
+      "viewExamples": "View Examples"
+    }
+  },
+  "docs": {
+    "title": "Documentation",
+    "subtitle": "Everything you need to know about CorsBridge",
+    "search": "Search documentation...",
+    "gettingStarted": "Getting Started",
+    "whatIs": "What is CorsBridge?",
+    "quickStart": "Quick Start",
+    "coreConcepts": "Core Concepts",
+    "proxyFormat": "Proxy URL Format",
+    "queryParams": "Query Parameters",
+    "httpMethods": "HTTP Methods",
+    "errorHandling": "Error Handling",
+    "browserExamples": "Browser Examples",
+    "fetchApi": "Fetch API",
+    "axios": "Axios",
+    "vanillaJs": "Vanilla JavaScript",
+    "frameworkGuides": "Framework Guides",
+    "react": "React Integration",
+    "nextjs": "Next.js",
+    "vue": "Vue.js",
+    "advanced": "Advanced",
+    "headers": "Custom Headers",
+    "responseFormat": "Response Format",
+    "faq": "FAQ",
+    "content": {
+      "whatIsTitle": "What is CorsBridge?",
+      "whatIsDesc": "CorsBridge is a free HTTP proxy service that eliminates CORS (Cross-Origin Resource Sharing) errors when making requests from browser-based applications.",
+      "whatIsContent": "CorsBridge is a free, no-authentication HTTP proxy service that removes CORS (Cross-Origin Resource Sharing) errors when making requests from client-side apps to external APIs.",
+      "whyCors": "Browsers block cross-origin requests by default for security reasons. CorsBridge acts as a middle layer, forwarding your request and adding appropriate CORS headers to the response.",
+      "quickStartTitle": "Quick Start",
+      "quickStartDesc": "Start with CorsBridge in seconds. Just add your target URL to our proxy base URL.",
+      "quickStartContent": "Get started in 30 seconds. No signup, no configuration.",
+      "basicUsage": "Basic Usage",
+      "simplyPrepend": "Simply prepend this to any API endpoint:",
+      "proxyFormatTitle": "Proxy URL Format",
+      "proxyFormatDesc": "The format is simple — append your target URL as a query parameter to the proxy endpoint.",
+      "urlStructure": "Understanding the proxy request URL structure.",
+      "example": "Example",
+      "targetUrl": "Target URL",
+      "proxiedUrl": "Proxied URL",
+      "httpMethodsTitle": "HTTP Methods",
+      "httpMethodsDesc": "CorsBridge supports all standard HTTP methods including GET, POST, PUT, PATCH, and DELETE.",
+      "httpMethodsSupport": "CorsBridge supports all standard HTTP methods.",
+      "getRequest": "GET Request",
+      "postRequest": "POST Request",
+      "fetchTitle": "Using Fetch API",
+      "fetchDesc": "Fetch API is the modern way to make HTTP requests in JavaScript.",
+      "nativeBrowserFetch": "The browser’s native Fetch API works seamlessly with CorsBridge.",
+      "axiosTitle": "Using Axios",
+      "axiosDesc": "Axios is a popular HTTP client library for JavaScript.",
+      "axiosZeroConfig": "Axios users can use CorsBridge with zero configuration changes.",
+      "reactTitle": "React Integration",
+      "reactDesc": "Integrating CorsBridge with React is straightforward using hooks.",
+      "reactHooks": "Use CorsBridge inside React components with hooks.",
+      "headersTitle": "Custom Headers",
+      "headersDesc": "You can add custom headers, including authentication tokens, to your requests.",
+      "passCustomHeaders": "Add custom headers to your requests.",
+      "faqTitle": "Frequently Asked Questions",
+      "faqQ1": "Is CorsBridge really free?",
+      "faqA1": "Yes! CorsBridge is completely free with no API key, authentication, or rate limits.",
+      "faqQ2": "Do I need an account?",
+      "faqA2": "No account required. Use the proxy URL directly in your code.",
+      "faqQ3": "Are there rate limits?",
+      "faqA3": "There are currently no rate limits. We trust developers to use the service responsibly.",
+      "faqQ4": "Is it secure?",
+      "faqA4": "All requests are proxied over HTTPS with proper SSL/TLS encryption.",
+      "faqReallyFree": "Yes! CorsBridge is completely free with no API key or authentication.",
+      "faqNoApiKey": "No API key required. Just use the proxy URL format.",
+      "faqProduction": "Yes, but for high-traffic production applications, consider running your own CORS proxy for full control.",
+      "faqPrivacy": "Requests are proxied but not logged. Always use HTTPS endpoints for sensitive data.",
+      "faqQ1Title": "Is it really free?",
+      "faqQ2Title": "Is an API key required?",
+      "faqQ3Title": "Can I use it in production?",
+      "faqQ4Title": "How is request privacy handled?",
+      "loading": "Loading..."
+    }
+  },
+  "examples": {
+    "title": "Code Examples",
+    "subtitle": "Ready-to-use snippets for popular frameworks and libraries",
+    "pageTitle": "Code Examples",
+    "pageSubtitle": "Ready-to-use snippets for popular frameworks and libraries",
+    "reactFetch": {
+      "title": "Fetch in React",
+      "description": "Simple data fetching in a React component using hooks",
+      "tags": ["React", "TypeScript", "Fetch"]
+    },
+    "axiosPost": {
+      "title": "Axios POST Request",
+      "description": "Sending data via Axios through the CORS proxy",
+      "tags": ["Axios", "POST", "TypeScript"]
+    },
+    "vanilla": {
+      "title": "Vanilla JavaScript",
+      "description": "Pure JavaScript implementation without frameworks",
+      "tags": ["JavaScript", "Vanilla", "DOM"]
+    },
+    "nextjs": {
+      "title": "Next.js API Route",
+      "description": "Server-side proxy in Next.js for extra security",
+      "tags": ["Next.js", "API Routes", "Server"]
+    },
+    "vue": {
+      "title": "Vue 3 Composition API",
+      "description": "Using CorsBridge with Vue 3’s reactive system",
+      "tags": ["Vue", "Composition API", "TypeScript"]
+    },
+    "customHeaders": {
+      "title": "Custom Headers & Authentication",
+      "description": "Adding authentication tokens and custom headers",
+      "tags": ["Fetch", "Authentication", "Headers"]
+    },
+    "errorHandling": {
+      "title": "Error Handling",
+      "description": "Comprehensive error handling for production apps",
+      "tags": ["TypeScript", "Error Handling", "Best Practices"]
+    },
+    "reactQuery": {
+      "title": "React Query Integration",
+      "description": "Using CorsBridge with TanStack React Query",
+      "tags": ["React", "React Query", "Caching"]
+    },
+    "cta": {
+      "title": "Need More Examples?",
+      "description": "Check out our full documentation for detailed guides and advanced use cases.",
+      "readDocs": "Read Documentation",
+      "tryPlayground": "Try Playground"
+    }
+  },
+  "playground": {
+    "title": "API Playground",
+    "subtitle": "Test the CORS proxy directly from your browser",
+    "requestBuilder": "Request Builder",
+    "targetUrl": "Target URL",
+    "method": "HTTP Method",
+    "headers": "Headers (JSON)",
+    "requestBody": "Request Body",
+    "proxyUrl": "Proxy URL",
+    "sendRequest": "Send Request",
+    "sending": "Sending...",
+    "response": "Response",
+    "statusOk": "200 OK",
+    "contentType": "application/json",
+    "success": "Request completed successfully",
+    "sendToSee": "Send a request to see the response",
+    "about": {
+      "title": "About This Playground",
+      "description": "This is a mock playground for demonstration. In production, requests are sent through the real CORS proxy. The response shown here is sample data for UI testing."
+    }
+  },
+  "donate": {
+    "badge": "Free Project",
+    "title": "Support the Project",
+    "subtitle": "CorsBridge is completely free and always will be. Your donations help us continue development.",
+    "popular": "Most Popular",
+    "oneTime": {
+      "name": "One-Time",
+      "amount": "Any Amount",
+      "description": "Buy us a coffee to show support",
+      "features": [
+        "Support the project once",
+        "Thank you badge",
+        "Name in README",
+        "Feel good guarantee",
+        "Contribute to development"
+      ],
+      "cta": "Buy a Coffee ☕"
+    },
+    "supporter": {
+      "name": "Monthly Supporter",
+      "amount": "$5-10/month",
+      "description": "Become a recurring supporter and get perks",
+      "features": [
+        "Everything in One-Time",
+        "GitHub Sponsors badge",
+        "Priority support",
+        "Early access to features",
+        "Special Discord role",
+        "Continuously support development"
+      ],
+      "cta": "Become a Supporter ❤️"
+    },
+    "sponsor": {
+      "name": "Sponsor",
+      "amount": "$25+/month",
+      "description": "For companies or generous individuals",
+      "features": [
+        "Everything in Supporter",
+        "Logo/name on website",
+        "Special thanks in GitHub README",
+        "Priority feature requests",
+        "Direct communication",
+        "Strongly support the project"
+      ],
+      "cta": "Become a Sponsor 🎁"
+    },
+    "faq": {
+      "title": "Frequently Asked Questions",
+      "q1Title": "Is donation mandatory?",
+      "a1": "No! CorsBridge is completely free and always will be. Donations are entirely voluntary and help sustain the project.",
+      "q2Title": "How can I donate?",
+      "a2": "You can donate securely via GitHub Sponsors or Buy Me a Coffee. Both platforms offer secure payment processing.",
+      "q3Title": "Where do donations go?",
+      "a3": "All donations go towards covering server costs, developing new features, and improving the project.",
+      "q4Title": "What do I get after donating?",
+      "a4": "You'll receive thank you badges, early access features, and special roles on Discord. Most importantly, you contribute to open source!"
+    },
+    "cta": {
+      "title": "Ready to Support?",
+      "description": "Every contribution, no matter how small, helps keep the project alive.",
+      "githubSponsors": "GitHub Sponsors",
+      "buyMeCoffee": "Buy Me a Coffee"
+    }
+  },
+  "status": {
+    "title": "System Status",
+    "subtitle": "Real-time status of all services",
+    "overallStatus": "Overall Status",
+    "operational": "All Systems Operational",
+    "allOperational": "All systems are running smoothly.",
+    "services": "Services",
+    "regionsTitle": "Global Regions",
+    "uptime": "Uptime",
+    "latency": "Latency",
+    "uptimeHistory": "Uptime History",
+    "last90Days": "Last 90 days",
+    "subscribe": "Subscribe to Updates",
+    "subscribeDesc": "Receive notifications when service status changes",
+    "emailPlaceholder": "email@yourdomain.com",
+    "subscribeButton": "Subscribe",
+    "lastUpdated": "Last updated: Just now",
+    "latencyMs": "Latency: {latency}ms",
+    "uptime30d": "Uptime (30 days)",
+    "uptimeChart": "Uptime chart visualization appears here",
+    "avgUptime90Days": "Average 99.97% uptime over the last 90 days",
+    "stayUpdated": "Stay Updated",
+    "subscribeNotify": "Subscribe to receive notifications about outages and planned maintenance",
+    "regions": {
+      "northAmericaEast": "North America (US East)",
+      "northAmericaWest": "North America (US West)",
+      "europeLondon": "Europe (London)",
+      "europeFrankfurt": "Europe (Frankfurt)",
+      "asiaSingapore": "Asia Pacific (Singapore)",
+      "asiaTokyo": "Asia Pacific (Tokyo)"
+    },
+    "serviceStatus": {
+      "proxyApi": "Proxy API",
+      "authentication": "Authentication",
+      "database": "Database",
+      "storage": "Storage",
+      "apiGateway": "API Gateway",
+      "proxyService": "Proxy Service",
+      "edgeNetwork": "Edge Network",
+      "analytics": "Analytics",
+      "documentation": "Documentation"
+    },
+    "statusTypes": {
+      "operational": "Operational",
+      "degraded": "Degraded Performance",
+      "outage": "Partial Outage",
+      "down": "Down",
+      "unknown": "Unknown"
+    }
+  },
+  "notFound": {
+    "title": "404",
+    "description": "Sorry! Page not found",
+    "backHome": "Return to Home"
+  },
+  "language": {
+    "select": "Select Language",
+    "en": "English",
+    "tr": "Turkish"
+  }
+}
+

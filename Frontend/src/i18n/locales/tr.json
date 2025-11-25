@@ -1,0 +1,390 @@
+{
+  "nav": {
+    "home": "Ana Sayfa",
+    "docs": "Dokümantasyon",
+    "examples": "Örnekler",
+    "playground": "Test Alanı",
+    "status": "Durum",
+    "donate": "Bağış",
+    "ariaPrimary": "Ana navigasyon",
+    "ariaThemeToggle": "Tema değiştir",
+    "ariaOpenMenu": "Menüyü aç",
+    "ariaCloseMenu": "Menüyü kapat"
+  },
+  "footer": {
+    "brand": "CorsBridge",
+    "description": "Syrins (syrins.tech) tarafından ücretsiz CORS proxy",
+    "navigation": "Navigasyon",
+    "resources": "Kaynaklar",
+    "github": "GitHub",
+    "documentation": "Dokümantasyon",
+    "contact": "İletişim",
+    "contactEmail": "contact@syrins.tech",
+    "copyright": "© 2025 CorsBridge • Syrins."
+  },
+  "home": {
+    "hero": {
+      "badge": "Sonsuza Kadar Ücretsiz • Kayıt Yok",
+      "title": "Saniyeler İçinde CORS'u Atla —",
+      "titleHighlight": "Tamamen Ücretsiz",
+      "subtitle": "CORS hatalarını anında ortadan kaldıran global HTTP proxy. API anahtarı yok, hesap yok, limit yok.",
+      "copyUrl": "URL'yi Kopyala",
+      "copied": "Kopyalandı!",
+      "viewDocs": "Dokümantasyona Git",
+      "freeNote": "Sonsuza kadar ücretsiz. Kayıt gerekmez."
+    },
+    "features": {
+      "title": "Geliştiriciler Neden CorsBridge'i Tercih Ediyor",
+      "subtitle": "Production ortamında CORS'u yönetmenin en basit yolu",
+      "free": {
+        "title": "Tamamen Ücretsiz",
+        "description": "API anahtarı yok, kimlik doğrulama yok, hız limiti yok. İhtiyacınıza göre kullanın."
+      },
+      "global": {
+        "title": "Global Ağ",
+        "description": "Minimum gecikme için dünya çapında edge konumlarına dağıtıldı."
+      },
+      "developer": {
+        "title": "Geliştirici Öncelikli",
+        "description": "Basit URL formatı. Her HTTP istemcisiyle çalışır. Sıfır yapılandırma."
+      },
+      "methods": {
+        "title": "Tüm Metodlar",
+        "description": "GET, POST, PUT, DELETE, PATCH ve özel başlıkları destekler."
+      },
+      "reliable": {
+        "title": "Hızlı ve Güvenilir",
+        "description": "Otomatik yük devretme ve yedeklilik ile %99.9 çalışma süresi."
+      },
+      "secure": {
+        "title": "Güvenli",
+        "description": "İstekleriniz uygun SSL/TLS ile güvenli bir şekilde proxy'lenir."
+      }
+    },
+    "useCases": {
+      "title": "Kullanım Alanları",
+      "subtitle": "Modern web geliştirme için mükemmel",
+      "spa": {
+        "title": "SPA'lar ve PWA'lar",
+        "description": "CORS sorunları olmadan tek sayfa uygulamaları oluşturun"
+      },
+      "prototypes": {
+        "title": "Prototipleme",
+        "description": "Backend kurulumu olmadan hızla prototip oluşturun"
+      },
+      "hackathons": {
+        "title": "Hackathonlar",
+        "description": "Altyapı yerine özelliklere odaklanın"
+      },
+      "internal": {
+        "title": "Dahili Araçlar",
+        "description": "Dahili kontrol panellerinizden herhangi bir API'ye bağlanın"
+      }
+    },
+    "howItWorks": {
+      "title": "Nasıl Çalışır",
+      "subtitle": "CORS'u atlamak için üç basit adım",
+      "proxyHandles": "CORS proxy isteğinizi işler",
+      "step1": {
+        "title": "Hedef URL Ekle",
+        "description": "Hedef URL'nizi sorgu parametresi olarak ekleyin"
+      },
+      "step2": {
+        "title": "CORS Atlandı",
+        "description": "Proxy'miz CORS'u otomatik olarak yönetir"
+      },
+      "step3": {
+        "title": "Yanıt Al",
+        "description": "Uygulamanızda veriyi normal şekilde alın"
+      }
+    },
+    "tryLive": {
+      "title": "Canlı Deneyin",
+      "subtitle": "Proxy'yi doğrudan tarayıcınızdan test edin",
+      "targetUrl": "Hedef URL",
+      "openPlayground": "Tam Test Alanını Aç"
+    },
+    "cta": {
+      "title": "Başlamaya Hazır Mısınız?",
+      "subtitle": "Kayıt gerekmez. CorsBridge'i bir sonraki projenizde hemen kullanmaya başlayın.",
+      "readDocs": "Dokümantasyonu Okuyun",
+      "viewExamples": "Örnekleri Görüntüle"
+    }
+  },
+  "docs": {
+    "title": "Dokümantasyon",
+    "subtitle": "CorsBridge hakkında bilmeniz gereken her şey",
+    "search": "Dokümantasyonda ara...",
+    "gettingStarted": "Başlarken",
+    "whatIs": "CorsBridge Nedir?",
+    "quickStart": "Hızlı Başlangıç",
+    "coreConcepts": "Temel Kavramlar",
+    "proxyFormat": "Proxy URL Formatı",
+    "queryParams": "Sorgu Parametreleri",
+    "httpMethods": "HTTP Metodları",
+    "errorHandling": "Hata Yönetimi",
+    "browserExamples": "Tarayıcı Örnekleri",
+    "fetchApi": "Fetch API",
+    "axios": "Axios",
+    "vanillaJs": "Vanilla JavaScript",
+    "frameworkGuides": "Framework Rehberleri",
+    "react": "React Entegrasyonu",
+    "nextjs": "Next.js",
+    "vue": "Vue.js",
+    "advanced": "Gelişmiş",
+    "headers": "Özel Başlıklar",
+    "responseFormat": "Yanıt Formatı",
+    "faq": "SSS",
+    "content": {
+      "whatIsTitle": "CorsBridge Nedir?",
+      "whatIsDesc": "CorsBridge, tarayıcı tabanlı uygulamalardan istek yaparken CORS (Cross-Origin Resource Sharing) hatalarını ortadan kaldıran ücretsiz bir HTTP proxy hizmetidir.",
+      "whatIsContent": "CorsBridge, tarayıcı uygulamalarından harici API'lere istek yaparken ortaya çıkan CORS (Cross-Origin Resource Sharing) hatalarını ortadan kaldıran ücretsiz, kimlik doğrulama gerektirmeyen bir HTTP proxy hizmetidir.",
+      "whyCors": "Tarayıcılar güvenlik nedeniyle varsayılan olarak cross-origin istekleri engeller. CorsBridge bir aracı görevi görerek isteklerinizi iletir ve yanıta uygun CORS başlıklarını ekler.",
+      "quickStartTitle": "Hızlı Başlangıç",
+      "quickStartDesc": "CorsBridge ile saniyeler içinde başlayın. Hedef URL'nizi proxy temel URL'mize eklemeniz yeterli.",
+      "quickStartContent": "30 saniyede başlayın. Kayıt yok, yapılandırma yok.",
+      "basicUsage": "Temel Kullanım",
+      "simplyPrepend": "Herhangi bir API endpoint'ine şunu ekleyin:",
+      "proxyFormatTitle": "Proxy URL Formatı",
+      "proxyFormatDesc": "Temel format basittir - hedef URL'nizi proxy endpoint'imize sorgu parametresi olarak ekleyin.",
+      "urlStructure": "Proxy istekleri için URL yapısını anlamak.",
+      "example": "Örnek",
+      "targetUrl": "Hedef URL",
+      "proxiedUrl": "Proxy'lenmiş URL",
+      "httpMethodsTitle": "HTTP Metodları",
+      "httpMethodsDesc": "CorsBridge, GET, POST, PUT, PATCH ve DELETE dahil olmak üzere tüm standart HTTP metodlarını destekler.",
+      "httpMethodsSupport": "CorsBridge tüm standart HTTP metodlarını destekler.",
+      "getRequest": "GET İsteği",
+      "postRequest": "POST İsteği",
+      "fetchTitle": "Fetch API Kullanımı",
+      "fetchDesc": "Fetch API, JavaScript'te HTTP istekleri yapmanın modern yoludur.",
+      "nativeBrowserFetch": "Tarayıcının yerleşik Fetch API'si CorsBridge ile sorunsuz çalışır.",
+      "axiosTitle": "Axios Kullanımı",
+      "axiosDesc": "Axios, JavaScript için popüler bir HTTP istemci kütüphanesidir.",
+      "axiosZeroConfig": "Axios kullanıcıları CorsBridge'i sıfır yapılandırma değişikliği ile kullanabilir.",
+      "reactTitle": "React Entegrasyonu",
+      "reactDesc": "CorsBridge'i React ile entegre etmek, hooks kullanarak oldukça basittir.",
+      "reactHooks": "React bileşenlerinde CorsBridge'i hook'lar ile kullanın.",
+      "headersTitle": "Özel Başlıklar",
+      "headersDesc": "İsteklerinize kimlik doğrulama tokenları dahil olmak üzere özel başlıklar ekleyebilirsiniz.",
+      "passCustomHeaders": "İsteklerinize özel başlıklar ekleyebilirsiniz.",
+      "faqTitle": "Sık Sorulan Sorular",
+      "faqQ1": "CorsBridge gerçekten ücretsiz mi?",
+      "faqA1": "Evet! CorsBridge, API anahtarı, kimlik doğrulama ve hız limiti olmadan tamamen ücretsizdir.",
+      "faqQ2": "Hesap oluşturmam gerekiyor mu?",
+      "faqA2": "Hesap gerekmez. Proxy URL'sini doğrudan kodunuzda kullanın.",
+      "faqQ3": "Hız limitleri neler?",
+      "faqA3": "Şu anda hız limiti yoktur. Geliştiricilerin hizmeti sorumlu bir şekilde kullanacağına güveniyoruz.",
+      "faqQ4": "Güvenli mi?",
+      "faqA4": "Tüm istekler, uygun SSL/TLS şifrelemesi ile HTTPS üzerinden proxy'lenir.",
+      "faqReallyFree": "Evet! CorsBridge, API anahtarı, kimlik doğrulama ve hız limiti olmadan tamamen ücretsizdir.",
+      "faqNoApiKey": "API anahtarı gerekmez. Sadece proxy URL formatını kullanın.",
+      "faqProduction": "Evet, ancak yüksek trafikli production uygulamaları için daha iyi kontrol için kendi CORS proxy'nizi uygulamayı düşünün.",
+      "faqPrivacy": "İstekler proxy'lenir ancak loglanmaz. Hassas veriler için her zaman HTTPS endpoint'leri kullanın.",
+      "faqQ1Title": "Gerçekten ücretsiz mi?",
+      "faqQ2Title": "API anahtarı gerekli mi?",
+      "faqQ3Title": "Production'da kullanabilir miyim?",
+      "faqQ4Title": "İstek gizliliği nasıl?",
+      "loading": "Yükleniyor..."
+    }
+  },
+  "examples": {
+    "title": "Kod Örnekleri",
+    "subtitle": "Popüler framework'ler ve kütüphaneler için kullanıma hazır kod parçacıkları",
+    "pageTitle": "Kod Örnekleri",
+    "pageSubtitle": "Popüler framework'ler ve kütüphaneler için kullanıma hazır kod parçacıkları",
+    "reactFetch": {
+      "title": "React ile Fetch",
+      "description": "Hook'lar kullanarak React bileşeninde basit veri çekme",
+      "tags": ["React", "TypeScript", "Fetch"]
+    },
+    "axiosPost": {
+      "title": "Axios POST İsteği",
+      "description": "CORS proxy üzerinden Axios ile veri gönderme",
+      "tags": ["Axios", "POST", "TypeScript"]
+    },
+    "vanilla": {
+      "title": "Vanilla JavaScript",
+      "description": "Framework'siz saf JavaScript implementasyonu",
+      "tags": ["JavaScript", "Vanilla", "DOM"]
+    },
+    "nextjs": {
+      "title": "Next.js API Route",
+      "description": "Ek güvenlik için Next.js'te sunucu tarafı proxy",
+      "tags": ["Next.js", "API Routes", "Server"]
+    },
+    "vue": {
+      "title": "Vue 3 Composition API",
+      "description": "Vue 3'ün reaktif sistemi ile CorsBridge kullanımı",
+      "tags": ["Vue", "Composition API", "TypeScript"]
+    },
+    "customHeaders": {
+      "title": "Özel Başlıklar ve Kimlik Doğrulama",
+      "description": "Yetkilendirme tokenları ve özel başlıklar ekleme",
+      "tags": ["Fetch", "Authentication", "Headers"]
+    },
+    "errorHandling": {
+      "title": "Hata Yönetimi",
+      "description": "Production uygulamaları için kapsamlı hata yönetimi",
+      "tags": ["TypeScript", "Error Handling", "Best Practices"]
+    },
+    "reactQuery": {
+      "title": "React Query Entegrasyonu",
+      "description": "TanStack React Query ile CorsBridge kullanımı",
+      "tags": ["React", "React Query", "Caching"]
+    },
+    "cta": {
+      "title": "Daha Fazla Örnek mi Gerekiyor?",
+      "description": "Detaylı kılavuzlar ve gelişmiş kullanım örnekleri için tam dokümantasyonumuza göz atın.",
+      "readDocs": "Dokümanları Oku",
+      "tryPlayground": "Test Alanını Dene"
+    }
+  },
+  "playground": {
+    "title": "API Test Alanı",
+    "subtitle": "CORS proxy'yi doğrudan tarayıcınızdan test edin",
+    "requestBuilder": "İstek Oluşturucu",
+    "targetUrl": "Hedef URL",
+    "method": "HTTP Metodu",
+    "headers": "Başlıklar (JSON)",
+    "requestBody": "İstek Gövdesi",
+    "proxyUrl": "Proxy URL",
+    "sendRequest": "İstek Gönder",
+    "sending": "Gönderiliyor...",
+    "response": "Yanıt",
+    "success": "İstek başarıyla tamamlandı",
+    "sendToSee": "Yanıtı görmek için bir istek gönderin",
+    "statusOk": "200 OK",
+    "contentType": "application/json",
+    "about": {
+      "title": "Bu Test Alanı Hakkında",
+      "description": "Bu, gösterim için bir mock test alanıdır. Production ortamında, istekler gerçek CORS proxy üzerinden gönderilir. Burada gösterilen yanıt, UI'yi test etmek için örnek veridir."
+    }
+  },
+  "donate": {
+    "badge": "Ücretsiz Proje",
+    "title": "Projeyi Destekle",
+    "subtitle": "CorsBridge tamamen ücretsizdir ve öyle kalacak. Bağışlarınız geliştirmeye devam etmemize yardımcı olur.",
+    "popular": "En Popüler",
+    "oneTime": {
+      "name": "Tek Seferlik",
+      "amount": "İstediğin Miktar",
+      "description": "Bir kahve ısmarlayarak destek ol",
+      "features": [
+        "Projeyi bir kez destekle",
+        "Teşekkür rozeti",
+        "README'de ismin",
+        "İyi hissetme garantisi",
+        "Gelişime katkı"
+      ],
+      "cta": "Kahve Ismarla ☕"
+    },
+    "supporter": {
+      "name": "Aylık Destekçi",
+      "amount": "$5-10/ay",
+      "description": "Düzenli destek ol ve özel avantajlar kazan",
+      "features": [
+        "Tek seferlik destekteki her şey",
+        "GitHub Sponsors rozeti",
+        "Öncelik desteği",
+        "Yeni özelliklere erken erişim",
+        "Discord'da özel rol",
+        "Gelişimi sürekli destekle"
+      ],
+      "cta": "Aylık Destekçi Ol ❤️"
+    },
+    "sponsor": {
+      "name": "Sponsor",
+      "amount": "$25+/ay",
+      "description": "Kurumsal destek veya cömert bireyler için",
+      "features": [
+        "Destekçi paketindeki her şey",
+        "Web sitesinde logo/isim",
+        "GitHub README'de özel teşekkür",
+        "Öncelikli özellik istekleri",
+        "Doğrudan iletişim",
+        "Projeyi güçlü şekilde destekle"
+      ],
+      "cta": "Sponsor Ol 🎁"
+    },
+    "faq": {
+      "title": "Sık Sorulan Sorular",
+      "q1Title": "Bağış yapmak zorunlu mu?",
+      "a1": "Hayır! CorsBridge tamamen ücretsizdir ve öyle kalacak. Bağışlar tamamen gönüllüdür ve projenin sürdürülmesine yardımcı olur.",
+      "q2Title": "Bağış nasıl yapılır?",
+      "a2": "GitHub Sponsors veya Buy Me a Coffee üzerinden güvenli şekilde bağış yapabilirsiniz. Her iki platform da güvenli ödeme işlemleri sunar.",
+      "q3Title": "Bağışlar nerede kullanılır?",
+      "a3": "Tüm bağışlar sunucu maliyetlerini karşılamak, yeni özellikler geliştirmek ve projeyi geliştirmek için kullanılır.",
+      "q4Title": "Bağış yaptıktan sonra ne alırım?",
+      "a4": "Desteğiniz için teşekkür rozetleri, erken erişim özellikleri ve Discord'da özel roller alırsınız. En önemlisi açık kaynak projeye katkıda bulunmuş olursunuz!"
+    },
+    "cta": {
+      "title": "Projeyi Desteklemeye Hazır Mısın?",
+      "description": "Her katkı, ne kadar küçük olursa olsun, projeyi canlı tutmaya yardımcı olur.",
+      "githubSponsors": "GitHub Sponsors",
+      "buyMeCoffee": "Buy Me a Coffee"
+    }
+  },
+  "status": {
+    "title": "Sistem Durumu",
+    "subtitle": "Tüm hizmetlerin gerçek zamanlı durumu",
+    "overallStatus": "Genel Durum",
+    "operational": "Tüm Sistemler Çalışıyor",
+    "allOperational": "Tüm sistemler sorunsuz çalışıyor.",
+    "services": "Hizmetler",
+    "regionsTitle": "Global Bölgeler",
+    "uptime": "Çalışma Süresi",
+    "latency": "Gecikme",
+    "uptimeHistory": "Çalışma Süresi Geçmişi",
+    "last90Days": "Son 90 gün",
+    "subscribe": "Güncellemelere Abone Ol",
+    "subscribeDesc": "Hizmet durumu değiştiğinde bildirim al",
+    "emailPlaceholder": "email@adresiniz.com",
+    "subscribeButton": "Abone Ol",
+    "lastUpdated": "Son güncelleme: Az önce",
+    "latencyMs": "Gecikme: {latency}ms",
+    "uptime30d": "Çalışma Süresi (30 gün)",
+    "uptimeChart": "Çalışma süresi grafik görselleştirmesi burada görünür",
+    "avgUptime90Days": "Son 90 günde ortalama %99.97 çalışma süresi",
+    "stayUpdated": "Güncel Kalın",
+    "subscribeNotify": "Kesintiler ve planlanmış bakımlar hakkında bildirim almak için abone olun",
+    "regions": {
+      "northAmericaEast": "Kuzey Amerika (ABD Doğu)",
+      "northAmericaWest": "Kuzey Amerika (ABD Batı)",
+      "europeLondon": "Avrupa (Londra)",
+      "europeFrankfurt": "Avrupa (Frankfurt)",
+      "asiaSingapore": "Asya Pasifik (Singapur)",
+      "asiaTokyo": "Asya Pasifik (Tokyo)"
+    },
+    "serviceStatus": {
+      "proxyApi": "Proxy API",
+      "authentication": "Kimlik Doğrulama",
+      "database": "Veritabanı",
+      "storage": "Depolama",
+      "apiGateway": "API Gateway",
+      "proxyService": "Proxy Servisi",
+      "edgeNetwork": "Edge Ağı",
+      "analytics": "Analitik",
+      "documentation": "Dokümantasyon"
+    },
+    "statusTypes": {
+      "operational": "Çalışıyor",
+      "degraded": "Düşük Performans",
+      "outage": "Kısmi Kesinti",
+      "down": "Çalışmıyor",
+      "unknown": "Bilinmiyor"
+    }
+  },
+  "notFound": {
+    "title": "404",
+    "description": "Üzgünüz! Sayfa bulunamadı",
+    "backHome": "Ana Sayfaya Dön"
+  },
+  "language": {
+    "select": "Dil Seçin",
+    "en": "English",
+    "tr": "Türkçe"
+  }
+}
+
+

@@ -1,0 +1,46 @@
+CorsBridge Backend Help • syrins.tech
+
+Usage:
+  https://api.cors.syrins.tech/?url={TARGET_URL}
+
+Examples:
+  GET  https://api.cors.syrins.tech/?url=https://api.example.com/data
+  POST https://api.cors.syrins.tech/?url=https://api.example.com/login
+
+HTTP Methods Supported:
+  GET, POST, PUT, PATCH, DELETE, OPTIONS
+
+Features:
+  - Transparent header forwarding (Authorization, Cookie, custom headers)
+  - Supports credentials (cookies, auth tokens)
+  - Localhost and private network access allowed
+  - Generous rate limiting with soft abuse monitoring
+  - Response streaming via http-proxy
+
+Headers Added by Proxy:
+  Access-Control-Allow-Origin: *
+  Access-Control-Allow-Methods: GET,POST,PUT,PATCH,DELETE,OPTIONS
+  Access-Control-Allow-Headers: *
+  Access-Control-Allow-Credentials: true
+  Access-Control-Max-Age: 86400
+  Access-Control-Expose-Headers: *
+  X-Powered-By: CorsBridge by Syrins
+  X-Proxy-Version: 0.1.0
+
+Limits:
+  Max request body: 10MB
+  Max response size: 10MB
+  Timeout: 30s
+  Rate limit: 1000 requests per 10 minutes per IP
+
+Fair Use Policy:
+  - Use responsibly for development and production
+  - No API keys required
+  - Monitoring detects abuse but does not block automatically
+  - Consider sponsoring if you rely on the service
+
+Health Check:
+  GET /health
+
+Need help?
+  Visit /help or open README.md in the repository.
