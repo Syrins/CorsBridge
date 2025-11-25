@@ -135,6 +135,14 @@
     "responseFormat": "Response Format",
     "faq": "FAQ",
     "content": {
+      "errorHandlingTitle": "Error Handling",
+      "errorHandlingContent": "The proxy returns standard HTTP status codes:",
+      "error400": "400: Bad Request - Invalid target URL",
+      "error404": "404: Not Found - Target URL not found",
+      "error500": "500: Internal Server Error - Server error",
+      "error502": "502: Bad Gateway - Target server unreachable",
+      "queryParamsTitle": "Query Parameters",
+      "queryParamsContent": "You can add query parameters to your requests to control the behavior of the proxy.",
       "whatIsTitle": "What is CorsBridge?",
       "whatIsDesc": "CorsBridge is a free HTTP proxy service that eliminates CORS (Cross-Origin Resource Sharing) errors when making requests from browser-based applications.",
       "whatIsContent": "CorsBridge is a free, no-authentication HTTP proxy service that removes CORS (Cross-Origin Resource Sharing) errors when making requests from client-side apps to external APIs.",
@@ -154,7 +162,16 @@
       "httpMethodsDesc": "CorsBridge supports all standard HTTP methods including GET, POST, PUT, PATCH, and DELETE.",
       "httpMethodsSupport": "CorsBridge supports all standard HTTP methods.",
       "getRequest": "GET Request",
+      "vanillaTitle": "Vanilla JavaScript",
+      "vanillaContent": "Vanilla JavaScript is the simplest way to make HTTP requests in JavaScript.",
       "postRequest": "POST Request",
+      "nextjsTitle": "Next.js",
+      "vueTitle": "Vue.js",
+      "vueContent": "Vue.js is a popular JavaScript framework for building user interfaces.",
+      "nextjsContent": "Next.js is a popular React framework for building server-side applications.",
+      "responseFormatTitle": "Response Format",
+      "responseFormatContent": "The response format is the same as the target URL response format.",
+      "responseHeaders": "The response headers are the same as the target URL response headers.",
       "fetchTitle": "Using Fetch API",
       "fetchDesc": "Fetch API is the modern way to make HTTP requests in JavaScript.",
       "nativeBrowserFetch": "The browser’s native Fetch API works seamlessly with CorsBridge.",
@@ -237,6 +254,48 @@
       "description": "Check out our full documentation for detailed guides and advanced use cases.",
       "readDocs": "Read Documentation",
       "tryPlayground": "Try Playground"
+    },
+    "codesExamples": {
+      "reactSimple": {
+        "title": "React - Simple",
+        "description": "Simple API call with useEffect"
+      },
+      "reactDetailed": {
+        "title": "React - Detailed",
+        "description": "Error handling and AbortController"
+      },
+      "jsSimple": {
+        "title": "JavaScript - Simple",
+        "description": "Vanilla JS API call"
+      },
+      "jsDetailed": {
+        "title": "JavaScript - Detailed",
+        "description": "Retry logic and timeout"
+      },
+      "tsSimple": {
+        "title": "TypeScript - Simple",
+        "description": "Type-safe API call"
+      },
+      "tsDetailed": {
+        "title": "TypeScript - Detailed",
+        "description": "Generic client with type safety"
+      },
+      "pythonSimple": {
+        "title": "Python - Simple",
+        "description": "API call with requests"
+      },
+      "pythonDetailed": {
+        "title": "Python - Detailed",
+        "description": "Session, retry and error handling"
+      },
+      "curlSimple": {
+        "title": "cURL - Simple",
+        "description": "Basic GET request"
+      },
+      "curlDetailed": {
+        "title": "cURL - Detailed",
+        "description": "Headers, auth and debugging"
+      }
     }
   },
   "playground": {

@@ -20,20 +20,19 @@ const Home = () => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const fetchExample = `const res = await fetch(
-  "https://api.cors.syrins.tech/?url=https://api.example.com/data"
+  const withoutCorsExample = `// ❌ This will fail with CORS error
+const res = await fetch(
+  "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
+);
+// Error: CORS policy blocked!
+// No 'Access-Control-Allow-Origin' header`;
+
+  const withCorsExample = `// ✅ This works! CORS bypassed
+const res = await fetch(
+  "https://api.cors.syrins.tech/?url=https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd"
 );
 const data = await res.json();
-console.log(data);`;
-
-  const axiosExample = `import axios from 'axios';
-
-const { data } = await axios.get(
-  "https://api.cors.syrins.tech/?url=https://api.example.com/data"
-);
-console.log(data);`;
-
-  const curlExample = `curl "https://api.cors.syrins.tech/?url=https://api.example.com/data"`;
+console.log(data); // { bitcoin: { usd: 98000 } }`;
   const useCaseKeys = ["spa", "prototypes", "hackathons", "internal"] as const;
 
   return (
@@ -69,25 +68,19 @@ console.log(data);`;
           </div>
 
           <Card className="p-3 sm:p-4 lg:p-6 border border-border/80 shadow-glow overflow-hidden">
-            <Tabs defaultValue="fetch">
-              <TabsList className="w-full grid grid-cols-3 h-auto">
-                <TabsTrigger value="fetch" className="text-xs sm:text-sm px-2 py-2 sm:px-4">fetch</TabsTrigger>
-                <TabsTrigger value="axios" className="text-xs sm:text-sm px-2 py-2 sm:px-4">axios</TabsTrigger>
-                <TabsTrigger value="curl" className="text-xs sm:text-sm px-2 py-2 sm:px-4">curl</TabsTrigger>
+            <Tabs defaultValue="without">
+              <TabsList className="w-full grid grid-cols-2 h-auto">
+                <TabsTrigger value="without" className="text-xs sm:text-sm px-2 py-2 sm:px-4">❌ Without Proxy</TabsTrigger>
+                <TabsTrigger value="with" className="text-xs sm:text-sm px-2 py-2 sm:px-4">✅ With CorsBridge</TabsTrigger>
               </TabsList>
-              <TabsContent value="fetch" className="mt-3 sm:mt-4 overflow-hidden">
+              <TabsContent value="without" className="mt-3 sm:mt-4 overflow-hidden">
                 <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
-                  <CodeBlock code={fetchExample} language="typescript" className="max-h-[200px] sm:max-h-[260px] text-[11px] sm:text-xs lg:text-sm" />
+                  <CodeBlock code={withoutCorsExample} language="typescript" className="max-h-[200px] sm:max-h-[260px] text-[11px] sm:text-xs lg:text-sm" />
                 </div>
               </TabsContent>
-              <TabsContent value="axios" className="mt-3 sm:mt-4 overflow-hidden">
+              <TabsContent value="with" className="mt-3 sm:mt-4 overflow-hidden">
                 <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
-                  <CodeBlock code={axiosExample} language="typescript" className="max-h-[200px] sm:max-h-[260px] text-[11px] sm:text-xs lg:text-sm" />
-                </div>
-              </TabsContent>
-              <TabsContent value="curl" className="mt-3 sm:mt-4 overflow-hidden">
-                <div className="overflow-x-auto -mx-3 px-3 sm:mx-0 sm:px-0">
-                  <CodeBlock code={curlExample} language="bash" className="max-h-[200px] sm:max-h-[260px] text-[11px] sm:text-xs lg:text-sm" />
+                  <CodeBlock code={withCorsExample} language="typescript" className="max-h-[200px] sm:max-h-[260px] text-[11px] sm:text-xs lg:text-sm" />
                 </div>
               </TabsContent>
             </Tabs>
