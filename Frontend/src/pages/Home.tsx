@@ -67,15 +67,15 @@ console.log(data); // { bitcoin: { usd: 98000 } }`;
             <div className="pt-4 border-t border-border/50">
               <div className="flex items-center gap-2 mb-2">
                 <Package className="h-5 w-5 text-primary" />
-                <span className="font-semibold">New: NPM Package Available!</span>
+                <span className="font-semibold">{t('home.npmBanner.title')}</span>
               </div>
               <p className="text-sm text-muted-foreground mb-3">
-                Install our zero-config client library for JavaScript/TypeScript projects
+                {t('home.npmBanner.description')}
               </p>
               <Button size="sm" variant="secondary" asChild className="gap-2">
                 <Link to="/package">
                   <Package className="h-4 w-4" />
-                  View NPM Package
+                  {t('home.npmBanner.button')}
                 </Link>
               </Button>
             </div>
