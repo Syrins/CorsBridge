@@ -301,9 +301,134 @@ Frontend Turkish docs →
 * Fully modern TS codebase
 * Developer-first design
 
-### ❗ Weaknesses (Honest)
+---
 
-* No JSONP (by design — security risk)
+# 🛡️ Service Reliability, SLA & Limitations (Honest + Professional)
+
+Cors-Bridge is designed to be highly available, fault-tolerant and safe by default.
+Below is an **honest, transparent and professional overview** of service guarantees and limitations.
+
+---
+
+## 📌 Service Availability (SLA-Style Statement)
+
+Cors-Bridge commits to maintaining a **high-availability, multi-region CORS infrastructure** with:
+
+* Continuous uptime target aligned with **industry-standard reliability**
+  *(no fixed percentage such as 99.9% or 99.99% is formally guaranteed)*
+* Automated monitoring and self-recovery
+* Multi-node architecture to minimize downtime
+* Zero-downtime deployment strategy
+* Automatic restarts on failures
+
+> ⚠ *While Cors-Bridge aims for extremely high uptime, it does not provide a legally binding SLA at this time.*
+
+---
+
+## 🌐 Multi-Region Redundancy (Active-Active)
+
+Cors-Bridge is **not** single-region.
+It operates across **multiple independent regions and runtimes**:
+
+### ✔ **2 High-Availability Backend Machines**
+
+Physical/virtual servers located in separate datacenters.
+
+### ✔ **1 Cloudflare Worker Edge Instance**
+
+Global edge fallback for ultra-low latency.
+
+### ✔ **1 Additional Edge Provider (Render / Vercel / etc.)**
+
+Third-party failover for automatic routing.
+
+### ✔ **Automatic failover logic**
+
+If one backend becomes unreachable, requests are transparently routed to the next healthy region.
+
+> Result: **Full multi-region failover**, extremely low risk of total outage.
+
+---
+
+## 🧩 Cluster & Load Balancing Support
+
+Cors-Bridge backend supports:
+
+* Horizontal scaling
+* Cluster mode (multi-process Node.js)
+* Load balancer compatibility
+* Multi-instance deployments
+* Cache sync via Redis (optional)
+
+> This ensures stable performance even under heavy load.
+
+---
+
+## ⚡ High-Traffic Behavior (Realistic Breakdown)
+
+Cors-Bridge is optimized for heavy workloads, but **traffic patterns matter**.
+The engine divides load into safe, isolated segments:
+
+### **1. Per-Host Circuit Breaker**
+
+If a specific external API becomes slow/unusable, only that host is isolated —
+**other traffic flows normally**.
+
+### **2. In-Flight Request Deduplication**
+
+Duplicate simultaneous requests merge into a **single upstream call**, reducing CPU load.
+
+### **3. Intelligent Timeout Management**
+
+Slow remote servers cannot block the event-loop
+→ Requests auto-expire safely.
+
+### **4. Caching Layers (Memory + Redis)**
+
+Hot endpoints are served in microseconds, drastically reducing upstream load.
+
+### **5. Smooth Burst Handling**
+
+Small traffic spikes are absorbed without causing rate-limit storms or CPU spikes.
+
+---
+
+## 💰 Free Public API Sustainability
+
+Although Cors-Bridge offers an **unlimited free public API**, its sustainability is ensured because:
+
+* Infrastructure is provided through a **hosting partner in which the author is a co-owner**
+* Costs are predictable and optimized
+* Multi-region backend + worker infrastructure ensures stability
+* Abuse prevention mechanisms help control load
+
+> Therefore, unlike many “free CORS proxies”, sustainability and funding **are not a risk** here.
+
+---
+
+## 🚫 No Single-Region Failure Risk
+
+Cors-Bridge previously could have had single-region dependency —
+**but the current architecture eliminates this entirely.**
+
+* Multiple backend regions
+* Cloudflare Worker Edge fallback
+* Additional global proxy provider
+* Health-based multi-origin routing
+
+> Translation: **No single point of failure.**
+
+---
+
+## 🔐 Security Boundaries (Transparent Limitations)
+
+Cors-Bridge implements strong protections, but (like all proxies) has some inherent limitations:
+
+* Does not provide JSONP (by design, security risk)
+* Cannot bypass target API’s own rate-limits or anti-bot systems
+* Cannot control slow or down remote servers
+* High-security WAF/IDS features (advanced threat models) belong to the enterprise tier, not default tier
+
 ---
 
 # 📬 Support / Issues / Contributions
