@@ -1,4 +1,16 @@
 <p align="center">
+  <a href="https://www.npmjs.com/package/corsbridge">
+    <img src="https://img.shields.io/npm/v/corsbridge.svg?style=for-the-badge&logo=npm&logoColor=white" alt="NPM Version" />
+  </a>
+  <a href="https://www.npmjs.com/package/corsbridge">
+    <img src="https://img.shields.io/npm/dm/corsbridge.svg?style=for-the-badge&logo=npm&logoColor=white" alt="NPM Downloads" />
+  </a>
+  <a href="https://github.com/syrins/cors-bridge/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License" />
+  </a>
+</p>
+
+<p align="center">
   <a href="#-english-documentation">
     <img src="https://img.shields.io/badge/English%20Docs-005BBB?style=for-the-badge" />
   </a>
@@ -36,7 +48,41 @@ It helps developers bypass browser CORS restrictions safely while offering:
 It consists of:
 
 - **Backend:** Hardened Node.js/TypeScript proxy  
-- **Frontend:** React + Vite app with examples, docs and a playground  
+- **Frontend:** React + Vite app with examples, docs and a playground
+- **NPM Package:** Zero-config client library for JavaScript/TypeScript
+
+---
+
+## 📦 NPM Package
+
+Install the official CorsBridge client library:
+
+```bash
+npm install corsbridge
+```
+
+### Quick Start
+
+```javascript
+import { corsFetch } from 'corsbridge';
+
+// Simple GET request - no config needed!
+const data = await corsFetch('https://api.github.com/users/github');
+console.log(data);
+```
+
+**Features:**
+- ✅ Zero configuration required
+- ✅ Full TypeScript support
+- ✅ 7.3 KB gzipped
+- ✅ Works in Browser & Node.js
+- ✅ Automatic error handling
+- ✅ Request/response types
+
+**Links:**
+- 📦 [NPM Package](https://www.npmjs.com/package/corsbridge)
+- 📖 [Package Documentation](https://cors.syrins.tech/package)
+- 💻 [GitHub Source](https://github.com/syrins/cors-bridge/tree/main/Package)
 
 ---
 
@@ -142,6 +188,40 @@ Modüller:
 
 * **Backend:** Güvenli Node.js/TypeScript proxy
 * **Frontend:** React + Vite dokümantasyon ve Playground uygulaması
+* **NPM Paketi:** JavaScript/TypeScript için sıfır-konfigürasyon istemci kütüphanesi
+
+---
+
+## 📦 NPM Paketi
+
+Resmi CorsBridge istemci kütüphanesini yükleyin:
+
+```bash
+npm install corsbridge
+```
+
+### Hızlı Başlangıç
+
+```javascript
+import { corsFetch } from 'corsbridge';
+
+// Basit GET isteği - hiç ayar gerekmez!
+const veri = await corsFetch('https://api.github.com/users/github');
+console.log(veri);
+```
+
+**Özellikler:**
+- ✅ Sıfır konfigürasyon gerekli
+- ✅ Tam TypeScript desteği
+- ✅ 7.3 KB (gzipped)
+- ✅ Tarayıcı & Node.js'de çalışır
+- ✅ Otomatik hata yönetimi
+- ✅ Request/response tipleri
+
+**Bağlantılar:**
+- 📦 [NPM Paketi](https://www.npmjs.com/package/corsbridge)
+- 📖 [Paket Dokümantasyonu](https://cors.syrins.tech/package)
+- 💻 [GitHub Kaynak Kodu](https://github.com/syrins/cors-bridge/tree/main/Package)
 
 ---
 
