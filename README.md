@@ -1,27 +1,38 @@
-<p align="center">
-  <a href="https://www.npmjs.com/package/corsbridge">
-    <img src="https://img.shields.io/npm/v/corsbridge.svg?style=for-the-badge&logo=npm&logoColor=white" alt="NPM Version" />
-  </a>
-  <a href="https://www.npmjs.com/package/corsbridge">
-    <img src="https://img.shields.io/npm/dm/corsbridge.svg?style=for-the-badge&logo=npm&logoColor=white" alt="NPM Downloads" />
-  </a>
-  <a href="https://github.com/syrins/cors-bridge/blob/main/LICENSE">
-    <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" alt="License" />
-  </a>
-</p>
-
-<p align="center">
-  <a href="#-english-documentation">
-    <img src="https://img.shields.io/badge/English%20Docs-005BBB?style=for-the-badge" />
-  </a>
-  <a href="#-türkçe-dokümantasyon">
-    <img src="https://img.shields.io/badge/Türkçe%20Dokümantasyon-F39C12?style=for-the-badge" />
-  </a>
-</p>
-
 # 🌉 **Cors-Bridge**
-### Modern • Secure • Full-Stack CORS Proxy Platform  
-#### (English & Turkish Documentation Included)
+
+### Modern • Secure • SSRF-Protected • Full-Stack CORS Proxy Platform
+
+#### **Public API • NPM Package • CLI Tool • React Playground**
+
+> **English README** — *Turkish Docs available below (Frontend & Backend)*
+
+<p align="center">
+  <a href="https://www.npmjs.com/package/corsbridge">
+    <img src="https://img.shields.io/npm/v/corsbridge.svg?style=for-the-badge&logo=npm&logoColor=white" />
+  </a>
+  <a href="https://www.npmjs.com/package/corsbridge">
+    <img src="https://img.shields.io/npm/dm/corsbridge.svg?style=for-the-badge" />
+  </a>
+  <a href="https://github.com/Syrins/Cors-Bridge/blob/main/LICENSE">
+    <img src="https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge" />
+  </a>
+</p>
+
+<p align="center">
+  <a href="https://github.com/Syrins/Cors-Bridge/blob/main/Frontend/Docs/English.md">
+    <img src="https://img.shields.io/badge/Frontend%20EN-3498DB?style=for-the-badge" />
+  </a>
+  <a href="https://github.com/Syrins/Cors-Bridge/blob/main/Frontend/Docs/Turkish.md">
+    <img src="https://img.shields.io/badge/Frontend%20TR-F39C12?style=for-the-badge" />
+  </a>
+  <a href="https://github.com/Syrins/Cors-Bridge/blob/main/Backend/Docs/English.md">
+    <img src="https://img.shields.io/badge/Backend%20EN-3498DB?style=for-the-badge" />
+  </a>
+  <a href="https://github.com/Syrins/Cors-Bridge/blob/main/Backend/Docs/Turkish.md">
+    <img src="https://img.shields.io/badge/Backend%20TR-F39C12?style=for-the-badge" />
+  </a>
+</p>
+
 
 <p align="center">
   <img src="https://share.syrins.tech/images/cors.jpg" width="880" />
@@ -30,264 +41,279 @@
 ---
 
 # 🇺🇸 English Documentation
-## 📘 What Is Cors-Bridge?
 
-Cors-Bridge is a **modern, secure and production-ready CORS proxy platform**.  
-It helps developers bypass browser CORS restrictions safely while offering:
+# 📘 What Is Cors-Bridge?
 
-- SSRF protection  
-- URL & hostname validation  
-- Private IP blocking (configurable)  
-- Multi-layer caching (Memory/Redis)  
-- Request deduplication  
-- Per-host circuit breakers  
-- Prometheus-compatible metrics  
-- Health endpoints  
-- React-based Playground + examples  
+**Cors-Bridge** is a **modern, secure, SSRF-protected, full-stack CORS proxy platform** designed by **Syrins** to completely eliminate browser-side CORS issues for developers.
 
-It consists of:
+It is not just a single tool — it is a **complete ecosystem** consisting of:
 
-- **Backend:** Hardened Node.js/TypeScript proxy  
-- **Frontend:** React + Vite app with examples, docs and a playground
-- **NPM Package:** Zero-config client library for JavaScript/TypeScript
+### ✔ **1. Unlimited Public CORS API (no server needed)**
 
----
+Use instantly:
 
-## 📦 NPM Package
-
-Install the official CorsBridge client library:
-
-```bash
-npm install corsbridge
+```
+https://api.cors.syrins.tech/?url=<TARGET_URL>
 ```
 
-### Quick Start
+### ✔ **2. NPM Package (`corsbridge`)**
 
-```javascript
-import { corsFetch } from 'corsbridge';
+Zero-config TypeScript/JavaScript client.
 
-// Simple GET request - no config needed!
-const data = await corsFetch('https://api.github.com/users/github');
-console.log(data);
-```
+### ✔ **3. CLI Tool**
 
-**Features:**
-- ✅ Zero configuration required
-- ✅ Full TypeScript support
-- ✅ 7.3 KB gzipped
-- ✅ Works in Browser & Node.js
-- ✅ Automatic error handling
-- ✅ Request/response types
+Perform CORS-safe HTTP requests directly from terminal.
 
-**Links:**
-- 📦 [NPM Package](https://www.npmjs.com/package/corsbridge)
-- 📖 [Package Documentation](https://cors.syrins.tech/package)
-- 💻 [GitHub Source](https://github.com/syrins/cors-bridge/tree/main/Package)
+### ✔ **4. Full Backend**
+
+Hardened CORS proxy with SSRF protections, caching, circuit breakers, metrics, health checks.
+
+### ✔ **5. Frontend Playground**
+
+React/Vite UI with examples, request tester, live latency, health dashboard.
 
 ---
 
-## 📄 Documentation (English)
+# 🚀 Key Features
 
-| Category | Link |
-|---------|------|
-| **Frontend Docs (EN)** | https://github.com/Syrins/Cors-Bridge/blob/main/Frontend/Docs/English.md |
-| **Backend Docs (EN)**  | https://github.com/Syrins/Cors-Bridge/blob/main/Backend/Docs/English.md |
+### 🔒 **SSRF Protection**
 
----
+* DNS + IP verification
+* Private subnet blocking
+* Blacklisted IP ranges
+* Safe URL validator
+* Prevents localhost & internal network access
 
-## 🧪 Usage Examples (EN)
+### ⚙ **Advanced Proxy Engine**
 
-### **1) Simple GET request**
-```javascript
-const response = await fetch(
-  "https://api.cors.syrins.tech/?url=https://example.com/api"
-);
-const data = await response.json();
-console.log(data);
-````
-
-### **2) POST request with headers**
-
-```javascript
-const res = await fetch(
-  "https://api.cors.syrins.tech/?url=https://example.com/login",
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user: "test", pass: "1234" })
-  }
-);
-console.log(await res.json());
-```
-
----
-
-## ⚙ Backend Overview (EN)
-
-* Node.js + TypeScript
-* SSRF Guard (IP range + hostname checks)
-* Rate limiting & abuse prevention
-* Redis or memory cache
+* Automatic header passthrough
+* Request & response normalization
+* Timeout & rate-limit
 * In-flight request deduplication
-* Circuit breaker per target
-* `/health`, `/live`, `/ready`
-* `/metrics` & `/metrics/prometheus`
+* Per-host circuit breaker
+* Raw/JSON output modes
+
+### ⚡ **Caching System**
+
+* Memory cache (default)
+* Optional Redis 7+
+* Cache-key hashing
+* Override TTL support
+
+### 📊 **Observability**
+
+* `/metrics` Prometheus endpoint
+* `/live`, `/ready`, `/health`
+* Latency tracking
+* Error counters
+
+### 🧪 **Developer Experience**
+
+* React playground
+* Ready code snippets
+* NPM + CLI + API all in sync
+* TypeScript-first design
 
 ---
 
-## 🎨 Frontend Overview (EN)
+# 🌍 Free Unlimited Public CORS API
 
-* React 18 + Vite
-* Tailwind CSS + shadcn/ui
-* EN/TR bilingual interface
-* Playground (live request tester)
-* Status page (latency, uptime, health)
-* Ready-to-copy examples
+### **No server setup required. Free forever. Production-ready.**
 
----
+Use immediately:
 
-## 🔎 Comparison vs Other CORS Proxy Services
+```
+https://api.cors.syrins.tech/?url=<TARGET_URL>
+```
 
-| Feature             | Cors-Bridge           | CORS Anywhere | AllOrigins       | Whatever Origin  |
-| ------------------- | --------------------- | ------------- | ---------------- | ---------------- |
-| SSRF Protection     | ✔ Yes                 | ✖ No          | ✖ Not documented | ✖ Not documented |
-| Private IP Blocking | ✔ Yes                 | ✖ No          | ✖ No             | ✖ No             |
-| URL Sanitization    | ✔ Advanced            | ✖ Basic       | ✖ Basic          | ✖ Basic          |
-| Caching             | ✔ Memory/Redis        | ✖ No          | ✖ Not documented | ✖ Not documented |
-| Deduplication       | ✔ Yes                 | ✖ No          | ✖ No             | ✖ No             |
-| Circuit Breaker     | ✔ Yes                 | ✖ No          | ✖ No             | ✖ No             |
-| Metrics             | ✔ Prometheus          | ✖ No          | ✖ No             | ✖ No             |
-| Playground          | ✔ Yes                 | ✖ No          | ✖ No             | ✖ No             |
-| JSONP Support       | ✖ No                  | ✖ No          | ✔ Yes            | ✔ Yes            |
-| Best Use Case       | Secure production use | Simple proxy  | Quick demos      | Legacy apps      |
+### 👍 Benefits
 
----
+* Zero installation
+* Unlimited usage
+* Fast global routing
+* Works in fetch(), Axios, etc.
+* CORS-safe
+* SSRF-protected
+* Perfect for frontend apps
 
----
+### Example
 
-# 🇹🇷 Türkçe Dokümantasyon
-
-## 📘 Cors-Bridge Nedir?
-
-Cors-Bridge, **modern, güvenli ve production-ready bir CORS proxy platformudur.**
-Tarayıcı kaynaklı CORS engellerini güvenli bir şekilde aşmayı sağlar.
-
-Özellikler:
-
-* SSRF koruması
-* URL & hostname doğrulama
-* Özel IP engelleme (opsiyonel)
-* Çok katmanlı cache (Bellek/Redis)
-* İstek tekilleştirme
-* Hedef başına devre kesici
-* Prometheus metrikleri
-* Health endpoint’leri
-* React tabanlı Playground + örnekler
-
-Modüller:
-
-* **Backend:** Güvenli Node.js/TypeScript proxy
-* **Frontend:** React + Vite dokümantasyon ve Playground uygulaması
-* **NPM Paketi:** JavaScript/TypeScript için sıfır-konfigürasyon istemci kütüphanesi
+```js
+const response = await fetch(
+  "https://api.cors.syrins.tech/?url=https://example.com"
+);
+console.log(await response.json());
+```
 
 ---
 
-## 📦 NPM Paketi
+# 📦 NPM Package — `corsbridge`
 
-Resmi CorsBridge istemci kütüphanesini yükleyin:
+install:
 
 ```bash
 npm install corsbridge
 ```
 
-### Hızlı Başlangıç
+### Quick Usage
 
-```javascript
-import { corsFetch } from 'corsbridge';
+```ts
+import { corsFetch } from "corsbridge";
 
-// Basit GET isteği - hiç ayar gerekmez!
-const veri = await corsFetch('https://api.github.com/users/github');
-console.log(veri);
+const data = await corsFetch("https://api.github.com/users/github");
+
+console.log(data);
 ```
 
-**Özellikler:**
-- ✅ Sıfır konfigürasyon gerekli
-- ✅ Tam TypeScript desteği
-- ✅ 7.3 KB (gzipped)
-- ✅ Tarayıcı & Node.js'de çalışır
-- ✅ Otomatik hata yönetimi
-- ✅ Request/response tipleri
+### Highlights
 
-**Bağlantılar:**
-- 📦 [NPM Paketi](https://www.npmjs.com/package/corsbridge)
-- 📖 [Paket Dokümantasyonu](https://cors.syrins.tech/package)
-- 💻 [GitHub Kaynak Kodu](https://github.com/syrins/cors-bridge/tree/main/Package)
+* 7.3 KB gzipped
+* TypeScript-native
+* Works in Browser + Node
+* Automatic error normalization
+* Built-in security
 
 ---
 
-## 📄 Dokümantasyon (Türkçe)
+# 🖥 CLI Tool — Global CORS Requester
 
-| Kategori        | Bağlantı                                                                                                                                             |
-| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Frontend TR** | [https://github.com/Syrins/Cors-Bridge/blob/main/Frontend/Docs/Turkish.md](https://github.com/Syrins/Cors-Bridge/blob/main/Frontend/Docs/Turkish.md) |
-| **Backend TR**  | [https://github.com/Syrins/Cors-Bridge/blob/main/Backend/Docs/Turkish.md](https://github.com/Syrins/Cors-Bridge/blob/main/Backend/Docs/Turkish.md)   |
+Install globally:
 
----
-
-## 🧪 Kullanım Örnekleri (TR)
-
-### **1) Basit GET isteği**
-
-```javascript
-const yanit = await fetch(
-  "https://api.cors.syrins.tech/?url=https://example.com/api"
-);
-console.log(await yanit.json());
+```bash
+npm install -g corsbridge
 ```
 
-### **2) Header'lı POST isteği**
+### Basic Request
 
-```javascript
-const cevap = await fetch(
-  "https://api.cors.syrins.tech/?url=https://example.com/login",
-  {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ kullanici: "deneme", sifre: "1234" })
-  }
-);
-console.log(await cevap.json());
+```bash
+corsbridge https://example.com
 ```
 
+### POST Example
+
+```bash
+corsbridge https://example.com/login \
+  --method POST \
+  --header "Content-Type: application/json" \
+  --data '{"user":"admin","pass":"1234"}'
+```
+
+### Output Modes
+
+```bash
+corsbridge https://api.github.com/users/github --json
+corsbridge https://example.com --raw
+```
+
+### Save to File
+
+```bash
+corsbridge https://example.com/data --out data.json
+```
+
+### All Flags
+
+| Flag        | Description         |
+| ----------- | ------------------- |
+| `--method`  | HTTP method         |
+| `--header`  | Add custom header   |
+| `--data`    | JSON/String body    |
+| `--json`    | Pretty JSON         |
+| `--raw`     | Raw response        |
+| `--agent`   | User-Agent          |
+| `--timeout` | Timeout ms          |
+| `--out`     | Save output         |
+| `--no-ssl`  | Skip SSL validation |
+
 ---
 
-## ⚙ Backend Özeti (TR)
+# ⚙ Backend Architecture
 
-* Node.js + TypeScript
-* SSRF koruması (IP + hostname)
-* Rate limit + abuse koruması
-* Redis / memory cache
-* İstek tekilleştirme
-* Hedef bazlı devre kesici
-* `/health`, `/live`, `/ready`
-* `/metrics` ve `/metrics/prometheus`
+### ✔ Node.js + TypeScript
+
+### ✔ Koa/Express-style middleware
+
+### ✔ SSRF Guard (IP + DNS + RegExp validation)
+
+### ✔ Redis caching
+
+### ✔ Circuit breaker per host
+
+### ✔ Metrics
+
+### ✔ Health checks
+
+### ✔ Full logs + tracing
+
+### ✔ Public and private deployment support
+
+Backend English Docs →
+**[https://github.com/Syrins/Cors-Bridge/blob/main/Backend/Docs/English.md](https://github.com/Syrins/Cors-Bridge/blob/main/Backend/Docs/English.md)**
+
+Backend Turkish Docs →
+**[https://github.com/Syrins/Cors-Bridge/blob/main/Backend/Docs/Turkish.md](https://github.com/Syrins/Cors-Bridge/blob/main/Backend/Docs/Turkish.md)**
 
 ---
 
-## 🎨 Frontend Özeti (TR)
+# 🎨 Frontend Playground
 
 * React 18 + Vite
-* Tailwind CSS + shadcn/ui
-* TR/EN çift dilli arayüz
-* Canlı Playground
-* Durum/Health ekranı
-* Hazır kopyalanabilir örnekler
+* Tailwind + shadcn/ui
+* Dark/light mode
+* EN/TR bilingual
+* Live request tester
+* Health monitor
+* Status charts
+
+Frontend English Docs →
+**[https://github.com/Syrins/Cors-Bridge/blob/main/Frontend/Docs/English.md](https://github.com/Syrins/Cors-Bridge/blob/main/Frontend/Docs/English.md)**
+
+Frontend Turkish Docs →
+**[https://github.com/Syrins/Cors-Bridge/blob/main/Frontend/Docs/Turkish.md](https://github.com/Syrins/Cors-Bridge/blob/main/Frontend/Docs/Turkish.md)**
 
 ---
 
-# 📬 Support / Destek
+# 🔎 Comparison vs Other CORS Services
 
-Sorular, öneriler veya katkılar için **issue** açabilirsiniz.
+*(Updated with all weaknesses + your unlimited public API)*
+
+| Feature             | Cors-Bridge            | CORS Anywhere | AllOrigins | WhateverOrigin | ScraperAPI | RapidAPI CORS |
+| ------------------- | ---------------------- | ------------- | ---------- | -------------- | ---------- | ------------- |
+| Public Hosted API   | ✔ Unlimited free       | ✔ Unstable    | ✔ Free     | ✔ Free         | ✖ Paid     | ✖ Paid        |
+| SSRF Protection     | ✔ Strong               | ✖ Weak        | ✖ None     | ✖ None         | ✔ Strong   | ✔ Strong      |
+| Private IP Blocking | ✔ Yes                  | ✖ No          | ✖ No       | ✖ No           | ✔ Yes      | ✔ Yes         |
+| URL Sanitization    | ✔ Advanced             | ✖ Basic       | ✖ Basic    | ✖ Basic        | ✔ Strong   | ✔ Strong      |
+| Caching             | ✔ Redis/Memory         | ✖ None        | ✖ Weak     | ✖ Weak         | ✔ Yes      | ✔ Yes         |
+| In-Flight Dedup     | ✔ Yes                  | ✖ No          | ✖ No       | ✖ No           | ✖ No       | ✖ No          |
+| Circuit Breaker     | ✔ Yes                  | ✖ No          | ✖ No       | ✖ No           | ✔ Yes      | ✔ Yes         |
+| Playground          | ✔ Yes                  | ✖ No          | ✖ No       | ✖ No           | ✖ No       | ✔ Partial     |
+| Rate Limit          | ✔ Built-in             | ✖ No          | ✖ No       | ✖ No           | ✔ Strong   | ✔ Strong      |
+| JSONP               | ✖ No                   | ✔ Yes         | ✔ Yes      | ✔ Yes          | ✖ No       | ✖ No          |
+| Free Tier           | ✔ Unlimited            | ✔ Yes         | ✔ Yes      | ✔ Yes          | ✖ No       | ✖ No          |
+| Requires Server     | ✖ Public API available | ✖ No          | ✖ No       | ✖ No           | ✔ Yes      | ✔ Yes         |
+
+### ✔ Strengths (Honest)
+
+* Free unlimited public API
+* Enterprise-level SSRF protection
+* Caching, deduplication, metrics
+* CLI + NPM + Playground
+* Fully modern TS codebase
+* Developer-first design
+
+### ❗ Weaknesses (Honest)
+
+* No JSONP (by design — security risk)
+---
+
+# 📬 Support / Issues / Contributions
+
+We welcome:
+
+* Feature requests
+* Bug reports
+* Pull requests
+* Suggestions
 
 ---
 
@@ -297,10 +323,10 @@ Sorular, öneriler veya katkılar için **issue** açabilirsiniz.
   <a href="https://github.com/Syrins/Cors-Bridge">Home</a> •
   <a href="https://github.com/Syrins/Cors-Bridge/tree/main/Frontend">Frontend</a> •
   <a href="https://github.com/Syrins/Cors-Bridge/tree/main/Backend">Backend</a> •
-  <a href="https://cors.syrins.tech">Live Service</a>
+  <a href="https://cors.syrins.tech">Public API</a>
   <br/><br/>
-  <sub>© Cors-Bridge — Modern, Secure & Developer-Focused CORS Platform</sub>
+  <sub>© Cors-Bridge — Secure, Modern, Developer-First CORS Platform by Syrins</sub>
 </p>
-```
 
 ---
+
