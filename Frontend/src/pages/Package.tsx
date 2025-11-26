@@ -86,10 +86,10 @@ onMounted(async () => {
 </template>`;
 
   const features = [
-    { icon: Zap, title: "Zero Config", desc: "No setup, no API keys, just install and use" },
-    { icon: Code, title: "Type Safe", desc: "Full TypeScript support with auto-completion" },
-    { icon: CheckCircle, title: "Secure", desc: "SSRF protection and validation on backend" },
-    { icon: Download, title: "Lightweight", desc: "Only 7.3 KB gzipped, no dependencies" }
+    { icon: Zap, title: t('package.features.zeroConfig.title'), desc: t('package.features.zeroConfig.description') },
+    { icon: Code, title: t('package.features.typeSafe.title'), desc: t('package.features.typeSafe.description') },
+    { icon: CheckCircle, title: t('package.features.secure.title'), desc: t('package.features.secure.description') },
+    { icon: Download, title: t('package.features.lightweight.title'), desc: t('package.features.lightweight.description') }
   ];
 
   return (
@@ -98,32 +98,32 @@ onMounted(async () => {
       <section className="container mx-auto safe-px py-12 sm:py-16 lg:py-20">
         <div className="text-center space-y-6 max-w-4xl mx-auto">
           <Badge className="bg-primary/10 text-primary border-primary/20 text-sm">
-            NPM Package Available
+            {t('package.hero.badge')}
           </Badge>
           
           <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold leading-tight">
-            CorsBridge
+            {t('package.hero.title')}
             <span className="block bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
-              NPM Package
+              {t('package.hero.titleHighlight')}
             </span>
           </h1>
           
           <p className="text-lg sm:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Zero-Config CORS Proxy Client for JavaScript & TypeScript. Install once, use everywhere.
+            {t('package.hero.subtitle')}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button size="lg" asChild className="gap-2">
               <a href="https://www.npmjs.com/package/corsbridge" target="_blank" rel="noopener noreferrer">
                 <PackageIcon className="h-5 w-5" />
-                View on NPM
+                {t('package.hero.viewNpm')}
                 <ExternalLink className="h-4 w-4" />
               </a>
             </Button>
             <Button size="lg" variant="outline" asChild className="gap-2">
               <a href="https://github.com/syrins/cors-bridge" target="_blank" rel="noopener noreferrer">
                 <Github className="h-5 w-5" />
-                GitHub Repository
+                {t('package.hero.viewGithub')}
               </a>
             </Button>
           </div>
@@ -132,15 +132,15 @@ onMounted(async () => {
           <div className="flex flex-wrap gap-6 justify-center pt-6">
             <div className="text-center">
               <div className="text-2xl font-bold text-primary">7.3 KB</div>
-              <div className="text-sm text-muted-foreground">Package Size</div>
+              <div className="text-sm text-muted-foreground">{t('package.hero.stats.size')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-primary">v1.0.0</div>
-              <div className="text-sm text-muted-foreground">Latest Version</div>
+              <div className="text-sm text-muted-foreground">{t('package.hero.stats.version')}</div>
             </div>
             <div className="text-center">
               <div className="text-2xl font-bold text-primary">MIT</div>
-              <div className="text-sm text-muted-foreground">License</div>
+              <div className="text-sm text-muted-foreground">{t('package.hero.stats.license')}</div>
             </div>
           </div>
         </div>
@@ -150,8 +150,8 @@ onMounted(async () => {
       <section className="border-t border-border bg-secondary/30">
         <div className="container mx-auto safe-px py-12 sm:py-16">
           <div className="text-center mb-8">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">Quick Installation</h2>
-            <p className="text-muted-foreground text-lg">Choose your preferred package manager</p>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">{t('package.installation.title')}</h2>
+            <p className="text-muted-foreground text-lg">{t('package.installation.subtitle')}</p>
           </div>
 
           <div className="max-w-4xl mx-auto">
@@ -167,7 +167,7 @@ onMounted(async () => {
                   <Card className="p-6 relative">
                     <div className="flex items-center gap-3 mb-3">
                       <Terminal className="h-5 w-5 text-primary" />
-                      <span className="text-sm font-medium text-muted-foreground">Terminal</span>
+                      <span className="text-sm font-medium text-muted-foreground">{t('package.installation.terminal')}</span>
                     </div>
                     <div className="relative">
                       <code className="block bg-secondary/50 p-4 rounded-lg font-mono text-sm sm:text-base">
@@ -197,9 +197,9 @@ onMounted(async () => {
       {/* Features */}
       <section className="container mx-auto safe-px py-12 sm:py-16">
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">Why CorsBridge?</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4">{t('package.features.title')}</h2>
           <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-            Built for developers who need a reliable CORS solution without the hassle
+            {t('package.features.subtitle')}
           </p>
         </div>
 
@@ -218,17 +218,17 @@ onMounted(async () => {
       <section className="border-t border-border bg-secondary/30">
         <div className="container mx-auto safe-px py-12 sm:py-16">
           <div className="text-center mb-12">
-            <h2 className="text-3xl sm:text-4xl font-bold mb-4">Code Examples</h2>
-            <p className="text-muted-foreground text-lg">See how easy it is to use CorsBridge</p>
+            <h2 className="text-3xl sm:text-4xl font-bold mb-4">{t('package.examples.title')}</h2>
+            <p className="text-muted-foreground text-lg">{t('package.examples.subtitle')}</p>
           </div>
 
           <div className="max-w-5xl mx-auto">
             <Tabs defaultValue="basic" className="w-full">
               <TabsList className="grid grid-cols-2 lg:grid-cols-4 w-full">
-                <TabsTrigger value="basic">Basic</TabsTrigger>
-                <TabsTrigger value="advanced">Advanced</TabsTrigger>
-                <TabsTrigger value="react">React</TabsTrigger>
-                <TabsTrigger value="vue">Vue</TabsTrigger>
+                <TabsTrigger value="basic">{t('package.examples.basic')}</TabsTrigger>
+                <TabsTrigger value="advanced">{t('package.examples.advanced')}</TabsTrigger>
+                <TabsTrigger value="react">{t('package.examples.react')}</TabsTrigger>
+                <TabsTrigger value="vue">{t('package.examples.vue')}</TabsTrigger>
               </TabsList>
 
               <TabsContent value="basic" className="mt-6">
@@ -254,13 +254,13 @@ onMounted(async () => {
       {/* API Reference */}
       <section className="container mx-auto safe-px py-12 sm:py-16">
         <div className="text-center mb-12">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">API Reference</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4">{t('package.api.title')}</h2>
         </div>
 
         <div className="max-w-4xl mx-auto space-y-6">
           <Card className="p-6">
-            <h3 className="text-xl font-semibold mb-3">corsFetch(url, options?)</h3>
-            <p className="text-muted-foreground mb-4">Main function to make proxied requests</p>
+            <h3 className="text-xl font-semibold mb-3">{t('package.api.corsFetch.title')}</h3>
+            <p className="text-muted-foreground mb-4">{t('package.api.corsFetch.description')}</p>
             <CodeBlock 
               code={`interface CorsFetchOptions {
   method?: string;                    // HTTP method
@@ -275,8 +275,8 @@ onMounted(async () => {
           </Card>
 
           <Card className="p-6">
-            <h3 className="text-xl font-semibold mb-3">Convenience Methods</h3>
-            <p className="text-muted-foreground mb-4">Shorthand methods for common HTTP verbs</p>
+            <h3 className="text-xl font-semibold mb-3">{t('package.api.convenience.title')}</h3>
+            <p className="text-muted-foreground mb-4">{t('package.api.convenience.description')}</p>
             <CodeBlock 
               code={`import { corsGet, corsPost, corsPut, corsPatch, corsDelete } from 'corsbridge';
 
@@ -299,24 +299,24 @@ await corsDelete('https://api.example.com/users/1');`}
           </Card>
 
           <Card className="p-6">
-            <h3 className="text-xl font-semibold mb-3">Error Handling</h3>
-            <p className="text-muted-foreground mb-4">Typed error classes for better error handling</p>
+            <h3 className="text-xl font-semibold mb-3">{t('package.api.errors.title')}</h3>
+            <p className="text-muted-foreground mb-4">{t('package.api.errors.description')}</p>
             <div className="space-y-2 mb-4">
               <div className="flex items-center gap-2">
                 <Badge variant="destructive">ValidationError</Badge>
-                <span className="text-sm">400, 403, 414 - URL validation, SSRF blocks</span>
+                <span className="text-sm">400, 403, 414 - {t('package.api.errors.validation')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant="destructive">RateLimitError</Badge>
-                <span className="text-sm">429 - Rate limit exceeded</span>
+                <span className="text-sm">429 - {t('package.api.errors.rateLimit')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant="destructive">GatewayTimeoutError</Badge>
-                <span className="text-sm">504 - Request timeout</span>
+                <span className="text-sm">504 - {t('package.api.errors.timeout')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Badge variant="destructive">BadGatewayError</Badge>
-                <span className="text-sm">502 - Target server error</span>
+                <span className="text-sm">502 - {t('package.api.errors.gateway')}</span>
               </div>
             </div>
           </Card>
@@ -326,20 +326,20 @@ await corsDelete('https://api.example.com/users/1');`}
       {/* CTA */}
       <section className="border-t border-border bg-gradient-to-b from-primary/5 to-transparent">
         <div className="container mx-auto safe-px py-12 sm:py-16 text-center">
-          <h2 className="text-3xl sm:text-4xl font-bold mb-4">Ready to Get Started?</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold mb-4">{t('package.cta.title')}</h2>
           <p className="text-muted-foreground text-lg mb-8 max-w-2xl mx-auto">
-            Install CorsBridge now and start building without CORS limitations
+            {t('package.cta.subtitle')}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" asChild className="gap-2">
               <a href="https://www.npmjs.com/package/corsbridge" target="_blank" rel="noopener noreferrer">
                 <Download className="h-5 w-5" />
-                Install from NPM
+                {t('package.cta.install')}
                 <ArrowRight className="h-4 w-4" />
               </a>
             </Button>
             <Button size="lg" variant="outline" asChild>
-              <a href="/docs">Read Full Documentation</a>
+              <a href="/docs">{t('package.cta.docs')}</a>
             </Button>
           </div>
         </div>
