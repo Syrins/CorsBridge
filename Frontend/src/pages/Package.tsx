@@ -18,7 +18,7 @@ const Package = () => {
   };
 
   const installCommands = {
-    npm: "npm install corsbridge",
+    npm: "npm install cors-bridge",
     yarn: "yarn add corsbridge",
     pnpm: "pnpm add corsbridge"
   };
@@ -114,7 +114,7 @@ onMounted(async () => {
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Button size="lg" asChild className="gap-2">
-              <a href="https://www.npmjs.com/package/corsbridge" target="_blank" rel="noopener noreferrer">
+              <a href="https://www.npmjs.com/package/cors-bridge" target="_blank" rel="noopener noreferrer">
                 <PackageIcon className="h-5 w-5" />
                 {t('package.hero.viewNpm')}
                 <ExternalLink className="h-4 w-4" />
@@ -332,7 +332,7 @@ await corsDelete('https://api.example.com/users/1');`}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" asChild className="gap-2">
-              <a href="https://www.npmjs.com/package/corsbridge" target="_blank" rel="noopener noreferrer">
+              <a href="https://www.npmjs.com/package/cors-bridge" target="_blank" rel="noopener noreferrer">
                 <Download className="h-5 w-5" />
                 {t('package.cta.install')}
                 <ArrowRight className="h-4 w-4" />

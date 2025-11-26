@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Activity, Server, Globe, Clock, AlertCircle, CheckCircle2, RefreshCw, Zap } from "lucide-react";
+import { Activity, Server, Globe, Clock, RefreshCw, Zap } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -7,23 +7,34 @@ import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
+type ServiceStatus = "operational" | "degraded" | "down" | "unknown";
+
+interface MemoryStats {
+  status: string;
+  heapUsed: number;
+  heapTotal: number;
+  rss: number;
+}
+
+interface CacheStats {
+  status: string;
+  enabled: boolean;
+  stats: {
+    size: number;
+    hits: number;
+    misses: number;
+    ttlSeconds: number;
+  } | null;
+}
+
 interface HealthData {
   status: string;
-  service: string;
   uptime: number;
   timestamp: string;
   checks: {
-    worker?: string;
-    cache?: string;
-    runtime?: string;
-    memory?: {
-      status: string;
-      heapUsed: number;
-      heapTotal: number;
-      rss: number;
-    };
+    memory?: MemoryStats;
+    cache?: CacheStats;
   };
-  version?: string;
 }
 
 interface RegionStatus {
@@ -35,6 +46,42 @@ interface RegionStatus {
   lastChecked: Date;
 }
 
+const API_BASE_URL = "https://api.cors.syrins.tech";
+const HEALTH_READY_ENDPOINT = "/health/ready";
+
+const getRegionLabel = (url: string): string => {
+  try {
+    const parsed = new URL(url);
+    return parsed.host;
+  } catch {
+    return url;
+  }
+};
+
+const mapServiceStatus = (status?: string): ServiceStatus => {
+  if (!status) {
+    return "unknown";
+  }
+
+  const normalized = status.toLowerCase();
+  if (["ok", "ready", "alive"].includes(normalized)) {
+    return "operational";
+  }
+
+  if (normalized === "warning") {
+    return "degraded";
+  }
+
+  if (["error", "down"].includes(normalized)) {
+    return "down";
+  }
+
+  return "degraded";
+};
+
+const PRIMARY_REGION_URL = API_BASE_URL;
+const PRIMARY_REGION_NAME = `Main API (${getRegionLabel(PRIMARY_REGION_URL)})`;
+
 const Status = () => {
   const { t } = useTranslation();
   const [loading, setLoading] = useState(true);
@@ -42,7 +89,7 @@ const Status = () => {
   const [healthData, setHealthData] = useState<HealthData | null>(null);
   const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
   const [regions, setRegions] = useState<RegionStatus[]>([
-    { name: "Main API (cors.syrins.tech)", url: "https://api.cors.syrins.tech", status: "unknown", uptime: 0, latency: 0, lastChecked: new Date() },
+    { name: PRIMARY_REGION_NAME, url: PRIMARY_REGION_URL, status: "unknown", uptime: 0, latency: 0, lastChecked: new Date() },
   ]);
 
   const checkHealth = async () => {
@@ -50,13 +97,14 @@ const Status = () => {
       setRefreshing(true);
       const startTime = Date.now();
       
-      const response = await fetch("https://api.cors.syrins.tech/health/ready", {
+      const response = await fetch(HEALTH_READY_ENDPOINT, {
         method: "GET",
         headers: { "Accept": "application/json" },
       });
       
       const latency = Date.now() - startTime;
       const data: HealthData = await response.json();
+      const normalizedStatus = mapServiceStatus(data?.status);
 
       setHealthData(data);
       setLastUpdated(new Date());
@@ -64,10 +112,11 @@ const Status = () => {
       // Update regions status
       setRegions((prev) =>
         prev.map((region) =>
-          region.url === "https://api.cors.syrins.tech"
+          region.url === PRIMARY_REGION_URL
             ? {
                 ...region,
-                status: response.ok ? "operational" : "degraded",
+                status: response.ok ? normalizedStatus : "degraded",
+                uptime: data.uptime,
                 latency,
                 lastChecked: new Date(),
               }
@@ -81,10 +130,11 @@ const Status = () => {
     } catch (error) {
       setRegions((prev) =>
         prev.map((region) =>
-          region.url === "https://api.cors.syrins.tech"
+          region.url === PRIMARY_REGION_URL
             ? {
                 ...region,
                 status: "down",
+                latency: 0,
                 lastChecked: new Date(),
               }
             : region
@@ -103,24 +153,32 @@ const Status = () => {
     return () => clearInterval(interval);
   }, []);
 
+  const memoryStats = healthData?.checks?.memory;
+  const cacheStats = healthData?.checks?.cache;
+  const overallStatus = mapServiceStatus(healthData?.status);
+  const cacheLayerStatus: ServiceStatus = cacheStats
+    ? cacheStats.enabled
+      ? mapServiceStatus(cacheStats.status)
+      : "operational"
+    : "unknown";
+  const memoryStatus = mapServiceStatus(memoryStats?.status);
+
   const services = [
-    { 
-      name: "Worker", 
-      status: !healthData ? "unknown" : healthData?.checks?.worker === "ok" ? "operational" : "degraded" 
+    {
+      name: "Core Proxy",
+      status: overallStatus,
     },
-    { 
-      name: "Cache Engine", 
-      status: !healthData ? "unknown" : healthData?.checks?.cache === "available" ? "operational" : "degraded" 
+    {
+      name: "Cache Layer",
+      status: cacheLayerStatus,
     },
-    { 
-      name: "Runtime", 
-      status: !healthData ? "unknown" : healthData?.checks?.runtime ? "operational" : "degraded" 
+    {
+      name: "Memory Health",
+      status: memoryStatus,
     },
-    { name: "API Gateway", status: !healthData ? "unknown" : "operational" },
-    { name: "Proxy Service", status: !healthData ? "unknown" : "operational" },
   ];
 
-  const getStatusColor = (status: string) => {
+  const getStatusColor = (status: ServiceStatus) => {
     switch (status) {
       case "operational":
         return "bg-success";
@@ -133,7 +191,7 @@ const Status = () => {
     }
   };
 
-  const getStatusBadge = (status: string) => {
+  const getStatusBadge = (status: ServiceStatus) => {
     switch (status) {
       case "operational":
         return (
@@ -193,12 +251,12 @@ const Status = () => {
             
             {/* Status Stats */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 sm:gap-4 mt-6">
-              {healthData?.checks?.memory && (
+              {memoryStats && (
                 <>
                   <div className="p-3 sm:p-4 rounded-lg bg-secondary/50 border border-border">
                     <p className="text-xs text-muted-foreground mb-1">Memory Used</p>
-                    <p className="text-lg sm:text-xl font-bold">{healthData.checks.memory.heapUsed}MB</p>
-                    <p className="text-xs text-muted-foreground mt-1">of {healthData.checks.memory.heapTotal}MB</p>
+                    <p className="text-lg sm:text-xl font-bold">{memoryStats.heapUsed}MB</p>
+                    <p className="text-xs text-muted-foreground mt-1">of {memoryStats.heapTotal}MB</p>
                   </div>
                   <div className="p-3 sm:p-4 rounded-lg bg-secondary/50 border border-border">
                     <p className="text-xs text-muted-foreground mb-1">Response Time</p>
@@ -207,7 +265,7 @@ const Status = () => {
                   </div>
                   <div className="p-3 sm:p-4 rounded-lg bg-secondary/50 border border-border">
                     <p className="text-xs text-muted-foreground mb-1">Server Uptime</p>
-                    <p className="text-lg sm:text-xl font-bold">{Math.floor(healthData.uptime / 3600)}h</p>
+                    <p className="text-lg sm:text-xl font-bold">{Math.floor((healthData?.uptime ?? 0) / 3600)}h</p>
                     <p className="text-xs text-muted-foreground mt-1">Running time</p>
                   </div>
                 </>
@@ -299,67 +357,91 @@ const Status = () => {
         </div>
 
         {/* Performance Metrics */}
-        {healthData?.checks && (
+        {(memoryStats || cacheStats) && (
           <div className="max-w-4xl mx-auto mb-12">
             <h2 className="text-xl sm:text-2xl font-bold mb-4 sm:mb-6">Performance Metrics</h2>
             <div className="grid gap-4 md:grid-cols-2">
-              <Card className="p-4 sm:p-6">
-                <h3 className="font-semibold text-sm sm:text-base mb-4 flex items-center gap-2">
-                  <Activity className="h-4 w-4" />
-                  Uptime Information
-                </h3>
-                <div className="space-y-3">
-                  <div>
-                    <div className="text-xs sm:text-sm text-muted-foreground mb-2">Service Uptime</div>
-                    <p className="text-sm font-mono">
-                      {healthData?.uptime ? (() => {
-                        const seconds = Math.floor(healthData.uptime);
-                        const years = Math.floor(seconds / 31536000);
-                        const remainingSeconds = seconds % 31536000;
-                        const days = Math.floor(remainingSeconds / 86400);
-                        const hours = Math.floor((remainingSeconds % 86400) / 3600);
-                        const minutes = Math.floor((remainingSeconds % 3600) / 60);
-                        const secs = remainingSeconds % 60;
-                        
-                        const parts: string[] = [];
-                        if (days > 0) parts.push(`${days} gün`);
-                        if (hours > 0) parts.push(`${hours} saat`);
-                        if (minutes > 0) parts.push(`${minutes} dakika`);
-                        if (secs > 0) parts.push(`${secs} saniye`);
-                        
-                        return parts.length > 0 ? parts.join(", ") : "0 saniye";
-                      })() : "N/A"}
-                    </p>
-                  </div>
-                  <div>
-                    <div className="text-xs sm:text-sm text-muted-foreground mb-1">Last Check</div>
-                    <p className="text-sm">
-                      {healthData?.timestamp ? new Date(healthData.timestamp).toLocaleString("tr-TR") : "N/A"}
-                    </p>
-                  </div>
-                </div>
-              </Card>
+              {memoryStats && (
+                <Card className="p-4 sm:p-6">
+                  <h3 className="font-semibold text-sm sm:text-base mb-4 flex items-center gap-2">
+                    <Activity className="h-4 w-4" />
+                    Uptime Information
+                  </h3>
+                  <div className="space-y-3">
+                    <div>
+                      <div className="text-xs sm:text-sm text-muted-foreground mb-2">Service Uptime</div>
+                      <p className="text-sm font-mono">
+                        {healthData?.uptime ? (() => {
+                          const seconds = Math.floor(healthData.uptime);
+                          const days = Math.floor(seconds / 86400);
+                          const hours = Math.floor((seconds % 86400) / 3600);
+                          const minutes = Math.floor((seconds % 3600) / 60);
+                          const secs = seconds % 60;
 
-              <Card className="p-4 sm:p-6">
-                <h3 className="font-semibold text-sm sm:text-base mb-4 flex items-center gap-2">
-                  <Zap className="h-4 w-4" />
-                  Runtime Status
-                </h3>
-                <div className="space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Runtime</span>
-                    <Badge className="bg-success/10 text-success">
-                      {healthData?.checks?.runtime || "Unknown"}
-                    </Badge>
+                          const parts: string[] = [];
+                          if (days > 0) parts.push(`${days} gün`);
+                          if (hours > 0) parts.push(`${hours} saat`);
+                          if (minutes > 0) parts.push(`${minutes} dakika`);
+                          if (secs > 0) parts.push(`${secs} saniye`);
+
+                          return parts.length > 0 ? parts.join(", ") : "0 saniye";
+                        })() : "N/A"}
+                      </p>
+                    </div>
+                    <div>
+                      <div className="text-xs sm:text-sm text-muted-foreground mb-1">Last Check</div>
+                      <p className="text-sm">
+                        {healthData?.timestamp ? new Date(healthData.timestamp).toLocaleString("tr-TR") : "N/A"}
+                      </p>
+                    </div>
+                    <div>
+                      <div className="text-xs sm:text-sm text-muted-foreground mb-1">Memory Health</div>
+                      <p className="text-sm font-semibold text-success">{memoryStats.status.toUpperCase()}</p>
+                    </div>
                   </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm text-muted-foreground">Health</span>
-                    <Badge className={healthData?.checks?.worker === "ok" ? "bg-success/10 text-success" : "bg-destructive/10 text-destructive"}>
-                      {healthData?.checks?.worker === "ok" ? "Healthy" : "Issues"}
-                    </Badge>
+                </Card>
+              )}
+
+              {cacheStats && (
+                <Card className="p-4 sm:p-6">
+                  <h3 className="font-semibold text-sm sm:text-base mb-4 flex items-center gap-2">
+                    <Zap className="h-4 w-4" />
+                    Cache Layer
+                  </h3>
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Status</span>
+                      {getStatusBadge(cacheLayerStatus)}
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-muted-foreground">Mode</span>
+                      <Badge className={cacheStats.enabled ? "bg-success/10 text-success" : "bg-secondary/40 text-muted-foreground"}>
+                        {cacheStats.enabled ? "Enabled" : "Disabled"}
+                      </Badge>
+                    </div>
+                    {cacheStats.stats && (
+                      <div className="grid grid-cols-2 gap-3 text-xs sm:text-sm">
+                        <div className="rounded-lg bg-secondary/50 border border-border p-3">
+                          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Hits</p>
+                          <p className="text-base font-semibold">{cacheStats.stats.hits}</p>
+                        </div>
+                        <div className="rounded-lg bg-secondary/50 border border-border p-3">
+                          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Misses</p>
+                          <p className="text-base font-semibold">{cacheStats.stats.misses}</p>
+                        </div>
+                        <div className="rounded-lg bg-secondary/50 border border-border p-3">
+                          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">Entries</p>
+                          <p className="text-base font-semibold">{cacheStats.stats.size}</p>
+                        </div>
+                        <div className="rounded-lg bg-secondary/50 border border-border p-3">
+                          <p className="text-[11px] uppercase tracking-wide text-muted-foreground">TTL (s)</p>
+                          <p className="text-base font-semibold">{cacheStats.stats.ttlSeconds}</p>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                </div>
-              </Card>
+                </Card>
+              )}
             </div>
           </div>
         )}
