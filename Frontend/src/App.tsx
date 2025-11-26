@@ -11,6 +11,7 @@ const Home = lazy(() => import("./pages/Home"));
 const Docs = lazy(() => import("./pages/Docs"));
 const Examples = lazy(() => import("./pages/Examples"));
 const Playground = lazy(() => import("./pages/Playground"));
+const Package = lazy(() => import("./pages/Package"));
 const Donate = lazy(() => import("./pages/Donate"));
 const Status = lazy(() => import("./pages/Status"));
 const NotFound = lazy(() => import("./pages/NotFound"));
@@ -38,6 +39,7 @@ const App = () => (
                 <Route path="/docs" element={<Docs />} />
                 <Route path="/examples" element={<Examples />} />
                 <Route path="/playground" element={<Playground />} />
+                <Route path="/package" element={<Package />} />
                 <Route path="/donate" element={<Donate />} />
                 <Route path="/status" element={<Status />} />
                 <Route path="*" element={<NotFound />} />
