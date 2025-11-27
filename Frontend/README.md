@@ -29,11 +29,11 @@ This directory only serves as a **redirect point** to the full frontend document
 
 <div align="center">
 
-<a href="https://github.com/Syrins/Cors-Bridge/blob/main/Frontend/Docs/English.md" target="_blank">
+<a href="https://github.com/Syrins/Cors-Bridge/blob/main/Frontend/docs/English.md" target="_blank">
   <img src="https://img.shields.io/badge/📘 English%20Frontend%20Docs-005BBB?style=for-the-badge&logoColor=white" />
 </a>
 
-<a href="https://github.com/Syrins/Cors-Bridge/blob/main/Frontend/Docs/Turkish.md" target="_blank">
+<a href="https://github.com/Syrins/Cors-Bridge/blob/main/Frontend/docs/Turkish.md" target="_blank">
   <img src="https://img.shields.io/badge/📙 Turkish%20Frontend%20Docs-F28C28?style=for-the-badge&logoColor=white" />
 </a>
 
