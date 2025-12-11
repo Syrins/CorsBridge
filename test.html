@@ -1,0 +1,1211 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CorsBridge Tester - CORS Proxy Playground &amp; CORS Anywhere Alternative</title>
+  <meta name="description" content="CORS proxy testing tool and CORS Anywhere alternative. Live CORS playground to test corsFetch, zero-config CORS proxy, error handling, CLI simulation, and framework-agnostic CORS testing for developers." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    window.tailwind = window.tailwind || {};
+    window.tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: { sans: ['Inter', 'ui-sans-serif', 'system-ui'] },
+          colors: {
+            brand: {
+              50: '#f0f7ff',
+              100: '#e0edff',
+              200: '#bedbff',
+              300: '#95c2ff',
+              400: '#5f9cff',
+              500: '#3a7bff',
+              600: '#1f5fe0',
+              700: '#1b4db3',
+              800: '#1c3f8a',
+              900: '#1b356f'
+            }
+          }
+        }
+      }
+    };
+  </script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://unpkg.com/prismjs/themes/prism.css" />
+  <style>
+    * { scroll-margin-top: 96px; }
+    .glass { backdrop-filter: blur(10px); }
+    .gradient-hero { background: radial-gradient(circle at 10% 20%, rgba(59,130,246,0.18), transparent 25%), radial-gradient(circle at 90% 20%, rgba(168,85,247,0.18), transparent 25%), linear-gradient(120deg, rgba(59,130,246,0.15), rgba(168,85,247,0.2)); }
+    .dark .gradient-hero { background: radial-gradient(circle at 10% 20%, rgba(37,99,235,0.16), transparent 25%), radial-gradient(circle at 90% 20%, rgba(147,51,234,0.16), transparent 25%), linear-gradient(120deg, rgba(30,41,59,0.9), rgba(15,23,42,0.9)); }
+    .fade-in { animation: fadeIn 0.4s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+    .spinner { border: 3px solid rgba(255,255,255,0.2); border-top-color: #3b82f6; border-radius: 50%; width: 28px; height: 28px; animation: spin 0.9s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    code[class*="language-"], pre[class*="language-"] { font-size: 0.95rem; }
+  </style>
+  <script src="https://unpkg.com/prismjs@1.29.0/components/prism-core.min.js" defer></script>
+  <script src="https://unpkg.com/prismjs@1.29.0/plugins/autoloader/prism-autoloader.min.js" defer></script>
+  <script src="https://unpkg.com/prismjs@1.29.0/components/prism-json.min.js" defer></script>
+  <script src="https://unpkg.com/prismjs@1.29.0/components/prism-bash.min.js" defer></script>
+</head>
+<body class="bg-slate-50 text-slate-900 transition-colors duration-300 dark:bg-slate-900 dark:text-slate-100">
+  <div id="offline-banner" class="hidden fixed top-0 inset-x-0 z-50 bg-amber-500 text-white text-center py-2 text-sm font-medium">You are offline. Features will queue or fail until connection is restored.</div>
+  <header class="fixed top-0 inset-x-0 z-40 bg-white/80 dark:bg-slate-900/80 border-b border-slate-200 dark:border-slate-800 glass">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div class="flex flex-wrap items-center justify-between gap-3 py-3">
+        <div class="flex items-center space-x-3 min-w-[200px]">
+          <span class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 text-white">
+            <svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M4 17l4-9 4 6 4-9 4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M4 17h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </span>
+          <div>
+            <div class="text-lg font-bold">CorsBridge Tester</div>
+            <p class="text-xs text-slate-500 dark:text-slate-400 hidden sm:block">Interactive CORS proxy playground</p>
+          </div>
+        </div>
+        <span class="hidden lg:inline-flex items-center px-3 py-1 rounded-full bg-blue-50 text-blue-700 border border-blue-200 text-xs font-semibold">CORS proxy for devs</span>
+        <nav class="hidden md:flex items-center space-x-5 text-sm font-medium overflow-x-auto whitespace-nowrap">
+          <a href="#home" class="hover:text-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500">Home</a>
+          <a href="#tester" class="hover:text-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500">Library Tester</a>
+          <a href="#cli" class="hover:text-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500">CLI Simulator</a>
+          <a href="#errors" class="hover:text-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500">Error Handling</a>
+          <a href="#advanced" class="hover:text-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500">Advanced Features</a>
+          <a href="#security" class="hover:text-blue-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-blue-500">Security & Docs</a>
+        </nav>
+        <div class="flex items-center space-x-3">
+          <a href="https://api.cors.syrins.tech" target="_blank" rel="noopener" class="hidden lg:inline-flex items-center px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 text-sm font-semibold">API</a>
+          <a href="https://cors.syrins.tech/docs" target="_blank" rel="noopener" class="hidden lg:inline-flex items-center px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 text-sm font-semibold">Docs</a>
+          <a href="https://www.npmjs.com/package/corsbridge" target="_blank" rel="noopener" class="hidden lg:inline-flex items-center px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 text-sm font-semibold">NPM</a>
+          <a href="https://github.com/syrins/corsbridge" target="_blank" rel="noopener" class="hidden sm:inline-flex items-center space-x-2 px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 transition">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path fill-rule="evenodd" d="M12 .5C5.648.5.5 5.648.5 12c0 5.086 3.292 9.387 7.865 10.91.575.102.785-.25.785-.555 0-.274-.01-1.15-.016-2.086-3.197.696-3.873-1.372-3.873-1.372-.523-1.329-1.277-1.684-1.277-1.684-1.043-.714.08-.699.08-.699 1.152.081 1.758 1.184 1.758 1.184 1.026 1.76 2.691 1.252 3.347.958.103-.744.402-1.252.732-1.54-2.553-.29-5.235-1.276-5.235-5.68 0-1.255.448-2.281 1.183-3.087-.119-.29-.513-1.457.113-3.04 0 0 .966-.309 3.167 1.18a10.98 10.98 0 0 1 2.883-.387c.978.005 1.963.132 2.883.387 2.2-1.489 3.164-1.18 3.164-1.18.628 1.583.234 2.75.115 3.04.737.806 1.182 1.832 1.182 3.087 0 4.416-2.687 5.386-5.25 5.67.41.354.776 1.047.776 2.112 0 1.526-.014 2.756-.014 3.13 0 .308.207.664.79.553C20.71 21.383 24 17.084 24 12 24 5.648 18.352.5 12 .5Z" clip-rule="evenodd"/></svg>
+            <span class="text-sm font-semibold">Star on GitHub</span>
+          </a>
+          <button id="mobileMenu" class="md:hidden p-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 transition" aria-label="Toggle navigation">☰</button>
+        </div>
+      </div>
+        <div id="mobileNav" class="hidden md:hidden pb-4 space-y-2 text-sm font-semibold">
+          <a href="#home" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">Home</a>
+          <a href="#tester" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">Library Tester</a>
+          <a href="#cli" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">CLI Simulator</a>
+          <a href="#errors" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">Error Handling</a>
+          <a href="#advanced" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">Advanced Features</a>
+          <a href="#security" class="block px-3 py-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">Security & Docs</a>
+          <div class="flex flex-wrap gap-2 px-3 pt-2">
+            <a href="https://api.cors.syrins.tech" target="_blank" rel="noopener" class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500">API</a>
+            <a href="https://cors.syrins.tech/docs" target="_blank" rel="noopener" class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500">Docs</a>
+            <a href="https://www.npmjs.com/package/corsbridge" target="_blank" rel="noopener" class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500">NPM</a>
+          </div>
+        </div>
+    </div>
+  </header>
+
+  <main class="pt-20" id="home">
+    <section class="gradient-hero py-20 sm:py-28">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid lg:grid-cols-2 gap-10 items-center">
+          <div class="space-y-6">
+            <div class="inline-flex items-center space-x-2 px-3 py-1 bg-white/70 dark:bg-slate-800/70 rounded-full border border-slate-200 dark:border-slate-700 text-sm font-semibold text-slate-700 dark:text-slate-200">
+              <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+              <span>Live browser testing — zero install</span>
+            </div>
+            <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold leading-tight text-slate-900 dark:text-white">Test CorsBridge Live: Zero-Config CORS Proxy for Developers</h1>
+            <p class="text-lg text-slate-700 dark:text-slate-300">CorsBridge is a lightweight, type-safe client that routes your requests through the proxy host api.cors.syrins.tech (service site: cors.syrins.tech) with SSRF protection, caching, and sane rate-limits. Use it in the browser or Node, with built-in CLI and framework-friendly helpers.</p>
+            <div class="flex flex-wrap gap-3">
+              <a href="#tester" class="px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg shadow-blue-500/25 transition">Start Testing Library</a>
+              <a href="https://cors.syrins.tech/docs" target="_blank" rel="noopener" class="px-5 py-3 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-blue-500 font-semibold transition">Open Docs</a>
+            </div>
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div class="p-4 rounded-xl bg-white/80 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700">
+                <div class="text-lg font-bold">Zero Config</div>
+                <p class="text-sm text-slate-600 dark:text-slate-400">Drop-in corsFetch with sane defaults.</p>
+              </div>
+              <div class="p-4 rounded-xl bg-white/80 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700">
+                <div class="text-lg font-bold">Secure</div>
+                <p class="text-sm text-slate-600 dark:text-slate-400">SSRF &amp; host allowlist baked in.</p>
+              </div>
+              <div class="p-4 rounded-xl bg-white/80 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700">
+                <div class="text-lg font-bold">CLI Ready</div>
+                <p class="text-sm text-slate-600 dark:text-slate-400">Simulate commands in-browser.</p>
+              </div>
+              <div class="p-4 rounded-xl bg-white/80 dark:bg-slate-800/70 border border-slate-200 dark:border-slate-700">
+                <div class="text-lg font-bold">Universal</div>
+                <p class="text-sm text-slate-600 dark:text-slate-400">Works in Browser &amp; Node.</p>
+              </div>
+            </div>
+          </div>
+          <div class="bg-white/90 dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-2xl shadow-2xl p-6 space-y-4">
+            <div class="flex items-center justify-between">
+              <h3 class="text-xl font-semibold">Install via npm</h3>
+              <span class="text-xs px-3 py-1 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-200">CLI &amp; Library</span>
+            </div>
+            <pre class="language-bash rounded-xl"><code class="language-bash">npm install corsbridge</code></pre>
+            <p class="text-sm text-slate-600 dark:text-slate-400">No install needed here — the CDN build is already wired for you. Jump down to the tester to start making proxied requests with corsFetch.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="tester" class="py-16 sm:py-20 bg-white dark:bg-slate-900">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-8">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm uppercase tracking-widest text-blue-600 font-semibold">Library Tester</p>
+            <h2 class="text-3xl font-bold mt-1">Interactive Library Tester</h2>
+            <p class="text-slate-600 dark:text-slate-300 max-w-3xl mt-2">Test corsFetch and convenience methods live. Enter details below and see real-time results. Supports all options from the API reference.</p>
+          </div>
+          <div class="flex space-x-2">
+            <button class="example-btn px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-semibold" data-example="github">GitHub User</button>
+            <button class="example-btn px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-semibold" data-example="coingecko">Coingecko Price</button>
+            <button class="example-btn px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 text-sm font-semibold" data-example="post">POST User</button>
+          </div>
+        </div>
+        <div class="grid lg:grid-cols-2 gap-6">
+          <div class="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 space-y-6">
+            <div class="flex items-center space-x-3">
+              <button id="tabBasic" class="tab-btn px-3 py-2 rounded-lg text-sm font-semibold bg-blue-600 text-white">Basic</button>
+              <button id="tabAdvanced" class="tab-btn px-3 py-2 rounded-lg text-sm font-semibold bg-slate-200 dark:bg-slate-700">Advanced</button>
+            </div>
+            <form id="requestForm" class="space-y-4" aria-label="CorsBridge request form">
+              <div>
+                <label class="block text-sm font-semibold mb-1">Target URL <span class="text-red-500">*</span></label>
+                <input id="urlInput" type="url" required placeholder="https://api.example.com/data" class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                <p class="text-xs text-slate-500 mt-1">Requests are proxied through api.cors.syrins.tech by default.</p>
+              </div>
+              <div class="grid sm:grid-cols-2 gap-3">
+                <div>
+                  <label class="block text-sm font-semibold mb-1">Method</label>
+                  <select id="methodSelect" class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option>GET</option>
+                    <option>POST</option>
+                    <option>PUT</option>
+                    <option>PATCH</option>
+                    <option>DELETE</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-1">Response Type</label>
+                  <select id="responseType" class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <option value="json" selected>json</option>
+                    <option value="text">text</option>
+                    <option value="arrayBuffer">arrayBuffer</option>
+                    <option value="blob">blob</option>
+                  </select>
+                </div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-sm font-semibold">Query Params</label>
+                  <button type="button" id="addQuery" class="text-sm text-blue-600 font-semibold">+ Add</button>
+                </div>
+                <div id="queryParams" class="space-y-2"></div>
+              </div>
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <label class="text-sm font-semibold">Headers</label>
+                  <button type="button" id="addHeader" class="text-sm text-blue-600 font-semibold">+ Add</button>
+                </div>
+                <div id="headers" class="space-y-2"></div>
+              </div>
+              <div id="bodyField">
+                <label class="block text-sm font-semibold mb-1">Body</label>
+                <textarea id="bodyInput" rows="4" placeholder='{"name":"Jane"}' class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"></textarea>
+                <p class="text-xs text-slate-500 mt-1">JSON auto-formats when valid.</p>
+              </div>
+              <div id="advancedFields" class="space-y-4 hidden">
+                <div>
+                  <label class="block text-sm font-semibold mb-1">Timeout (ms)</label>
+                  <input id="timeoutInput" type="number" min="1000" max="60000" step="500" placeholder="e.g., 5000" class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+                <div>
+                  <label class="block text-sm font-semibold mb-1">Custom Proxy URL</label>
+                  <input id="proxyInput" type="url" placeholder="https://my-proxy.example.com" class="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                  <p class="text-xs text-slate-500 mt-1">Defaults to https://cors.syrins.tech</p>
+                </div>
+              </div>
+              <div class="flex items-center space-x-3 pt-2">
+                <button id="sendBtn" type="submit" class="inline-flex items-center space-x-2 px-5 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg shadow-blue-500/25 transition">
+                  <span>Send Request</span>
+                  <span id="sendSpinner" class="hidden spinner"></span>
+                </button>
+                <div id="requestStatus" class="text-sm text-slate-600 dark:text-slate-400"></div>
+              </div>
+            </form>
+          </div>
+          <div class="bg-slate-50 dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-6 space-y-4">
+            <div>
+              <h3 class="text-lg font-semibold mb-2">Request Preview</h3>
+              <pre class="language-js rounded-xl"><code id="requestPreview" class="language-js">// Request preview will appear here</code></pre>
+            </div>
+            <div class="space-y-3">
+              <div class="flex items-center space-x-2">
+                <button data-tab="body" class="resp-tab px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold">Body</button>
+                <button data-tab="headers" class="resp-tab px-3 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-sm font-semibold">Headers</button>
+                <button data-tab="status" class="resp-tab px-3 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-sm font-semibold">Status</button>
+                <button data-tab="error" class="resp-tab px-3 py-2 rounded-lg bg-slate-200 dark:bg-slate-700 text-sm font-semibold">Error</button>
+              </div>
+              <div id="responseBody" class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 min-h-[200px] font-mono text-sm overflow-auto fade-in">Awaiting request...</div>
+              <div id="responseHeaders" class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 min-h-[200px] font-mono text-sm overflow-auto hidden fade-in">–</div>
+              <div id="responseStatus" class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 min-h-[200px] font-mono text-sm overflow-auto hidden fade-in">–</div>
+              <div id="responseError" class="rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-4 min-h-[200px] font-mono text-sm overflow-auto hidden fade-in">–</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="cli" class="py-16 sm:py-20 bg-slate-50 dark:bg-slate-900">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm uppercase tracking-widest text-blue-600 font-semibold">CLI Simulator</p>
+            <h2 class="text-3xl font-bold mt-1">CLI Command Simulator</h2>
+            <p class="text-slate-600 dark:text-slate-300 max-w-3xl mt-2">Test CLI usage without global install. Simulate commands in-browser. Limited to browser-allowed methods; full CLI still shines in your terminal.</p>
+          </div>
+          <button id="showHelp" class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500 text-sm font-semibold">Show --help</button>
+        </div>
+        <div class="bg-white dark:bg-slate-800/60 border border-slate-200 dark:border-slate-700 rounded-2xl p-4 sm:p-6 space-y-4">
+          <div class="flex items-center space-x-2">
+            <span class="text-sm font-semibold text-slate-600 dark:text-slate-300">Command:</span>
+            <input id="cliInput" aria-label="CLI command input" class="flex-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder='corsbridge https://api.github.com/users/github -v' />
+            <button id="runCli" class="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold">Run</button>
+          </div>
+          <div id="cliOutput" class="rounded-xl bg-slate-900 text-slate-100 p-4 font-mono text-sm min-h-[220px] overflow-auto fade-in" aria-live="polite">corsbridge &gt; waiting for command...</div>
+          <div class="grid sm:grid-cols-3 gap-2">
+            <button class="cli-example px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-semibold" data-cmd="corsbridge https://api.github.com/users/github -v">GitHub user</button>
+            <button class="cli-example px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-semibold" data-cmd="corsbridge https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd -v">Coingecko price</button>
+            <button class="cli-example px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 text-sm font-semibold" data-cmd="corsbridge https://httpbin.org/post -X POST -H Content-Type:application/json -d '{&quot;hello&quot;:&quot;world&quot;}' -v">POST demo</button>
+          </div>
+          <div>
+            <h4 class="text-sm font-semibold mb-2">CLI Examples</h4>
+            <pre class="language-bash rounded-xl"><code class="language-bash">corsbridge https://api.github.com/users/github -v
+corsbridge https://api.coingecko.com/api/v3/simple/price -q ids=bitcoin -q vs_currencies=usd
+corsbridge https://httpbin.org/post -X POST -H Content-Type:application/json -d '{"hello":"world"}'</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="errors" class="py-16 sm:py-20 bg-white dark:bg-slate-900">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm uppercase tracking-widest text-blue-600 font-semibold">Error Handling</p>
+            <h2 class="text-3xl font-bold mt-1">Test Error Handling</h2>
+            <p class="text-slate-600 dark:text-slate-300 max-w-3xl mt-2">Trigger and observe errors as per README. Each test shows the error class, status, and handling tips.</p>
+          </div>
+        </div>
+        <div class="grid md:grid-cols-3 gap-4">
+          <div class="error-card p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" data-error="ValidationError">
+            <h4 class="font-semibold">ValidationError</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Invalid input or missing required fields.</p>
+            <button class="trigger-error mt-3 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold">Trigger Test</button>
+          </div>
+          <div class="error-card p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" data-error="HostBlockedError">
+            <h4 class="font-semibold">HostBlockedError</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Host not allowed or blocked by SSRF rules.</p>
+            <button class="trigger-error mt-3 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold">Trigger Test</button>
+          </div>
+          <div class="error-card p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" data-error="SSRFBlockedError">
+            <h4 class="font-semibold">SSRFBlockedError</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Detected SSRF or private IP attempt.</p>
+            <button class="trigger-error mt-3 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold">Trigger Test</button>
+          </div>
+          <div class="error-card p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" data-error="InvalidURLError">
+            <h4 class="font-semibold">InvalidURLError</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Malformed or unsupported URL.</p>
+            <button class="trigger-error mt-3 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold">Trigger Test</button>
+          </div>
+          <div class="error-card p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" data-error="PayloadTooLargeError">
+            <h4 class="font-semibold">PayloadTooLargeError</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Body exceeds allowed size.</p>
+            <button class="trigger-error mt-3 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold">Trigger Test</button>
+          </div>
+          <div class="error-card p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" data-error="RateLimitError">
+            <h4 class="font-semibold">RateLimitError</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Too many requests; retry after window.</p>
+            <button class="trigger-error mt-3 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold">Trigger Test</button>
+          </div>
+          <div class="error-card p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" data-error="TargetError">
+            <h4 class="font-semibold">TargetError</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Upstream target returned an error.</p>
+            <button class="trigger-error mt-3 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold">Trigger Test</button>
+          </div>
+          <div class="error-card p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" data-error="TimeoutError">
+            <h4 class="font-semibold">TimeoutError</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Request exceeded configured timeout.</p>
+            <button class="trigger-error mt-3 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold">Trigger Test</button>
+          </div>
+          <div class="error-card p-4 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/60" data-error="NetworkError">
+            <h4 class="font-semibold">NetworkError</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Connectivity issues or DNS failures.</p>
+            <button class="trigger-error mt-3 px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold">Trigger Test</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="advanced" class="py-16 sm:py-20 bg-slate-50 dark:bg-slate-900">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm uppercase tracking-widest text-blue-600 font-semibold">Advanced</p>
+            <h2 class="text-3xl font-bold mt-1">Advanced Usage &amp; Integrations</h2>
+            <p class="text-slate-600 dark:text-slate-300 max-w-3xl mt-2">Dive into auth headers, tight timeouts, custom proxies, and response types.</p>
+          </div>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 space-y-2">
+            <h4 class="font-semibold">Authentication</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Pre-fill Authorization header and hit a public auth echo endpoint.</p>
+            <button class="prefill-advanced px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold" data-type="auth">Load Auth Demo</button>
+            <pre class="language-js rounded-xl"><code class="language-js">await corsFetch("https://httpbin.org/headers", {
+  headers: { Authorization: "Bearer &lt;token&gt;" }
+});</code></pre>
+          </div>
+          <div class="p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 space-y-2">
+            <h4 class="font-semibold">Timeout</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Use a low timeout against a slow endpoint to see graceful aborts.</p>
+            <button class="prefill-advanced px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold" data-type="timeout">Load Timeout Demo</button>
+            <pre class="language-js rounded-xl"><code class="language-js">await corsFetch("https://httpbin.org/delay/5", { timeout: 1200 });</code></pre>
+          </div>
+          <div class="p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 space-y-2">
+            <h4 class="font-semibold">Custom Proxy</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Override the default proxy host if you self-host corsbridge.</p>
+            <button class="prefill-advanced px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold" data-type="proxy">Load Custom Proxy</button>
+            <pre class="language-js rounded-xl"><code class="language-js">await corsFetch("https://api.github.com/rate_limit", {
+  proxyUrl: "https://my-proxy.example.com"
+});</code></pre>
+          </div>
+          <div class="p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 space-y-2">
+            <h4 class="font-semibold">Response Types</h4>
+            <p class="text-sm text-slate-600 dark:text-slate-400">Stream blobs or buffers to preview images or downloads.</p>
+            <button class="prefill-advanced px-3 py-2 rounded-lg bg-blue-600 text-white text-sm font-semibold" data-type="response">Load Response Type Demo</button>
+            <pre class="language-js rounded-xl"><code class="language-js">const res = await corsFetch("https://httpbin.org/image/png", {
+  responseType: "blob"
+});</code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="security" class="py-16 sm:py-20 bg-slate-50 dark:bg-slate-900">
+      <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+        <div class="flex items-center justify-between">
+          <div>
+            <p class="text-sm uppercase tracking-widest text-blue-600 font-semibold">Security &amp; Docs</p>
+            <h2 class="text-3xl font-bold mt-1">Security Features &amp; Full Docs</h2>
+            <p class="text-slate-600 dark:text-slate-300 max-w-3xl mt-2">CorsBridge backend ships with protections inspired by the README.</p>
+          </div>
+        </div>
+        <div class="grid md:grid-cols-2 gap-4">
+          <div class="p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 space-y-2">
+            <h4 class="font-semibold">Security Highlights</h4>
+            <ul class="list-disc list-inside space-y-1 text-sm text-slate-700 dark:text-slate-300">
+              <li>SSRF protection and host allowlisting.</li>
+              <li>Rate limiting and abuse guards.</li>
+              <li>Response size ceilings to avoid overload.</li>
+              <li>Caching for performance where safe.</li>
+              <li>Type-safe client surface to avoid misuse.</li>
+            </ul>
+          </div>
+          <div class="p-5 rounded-xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800/60 space-y-3">
+            <h4 class="font-semibold">Resources</h4>
+            <div class="grid sm:grid-cols-2 gap-2 text-sm font-semibold">
+              <a class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500" href="https://cors.syrins.tech" target="_blank" rel="noopener">Service</a>
+              <a class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500" href="https://cors.syrins.tech/docs" target="_blank" rel="noopener">Docs</a>
+              <a class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500" href="https://www.npmjs.com/package/corsbridge" target="_blank" rel="noopener">NPM</a>
+              <a class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500" href="https://github.com/syrins/corsbridge" target="_blank" rel="noopener">GitHub</a>
+              <a class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500" href="https://cors.syrins.tech/changelog" target="_blank" rel="noopener">Changelog</a>
+              <a class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500" href="https://github.com/syrins/corsbridge/issues" target="_blank" rel="noopener">Issues</a>
+              <a class="px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-blue-500" href="https://cors.syrins.tech/donate" target="_blank" rel="noopener">Donate</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="py-8 border-t border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
+      <p class="text-sm text-slate-600 dark:text-slate-400">CorsBridge by Syrins — MIT License</p>
+      <div class="flex items-center space-x-4 text-sm font-semibold">
+        <a href="https://github.com/syrins/corsbridge" target="_blank" rel="noopener" class="hover:text-blue-600">GitHub</a>
+        <a href="https://www.npmjs.com/package/corsbridge" target="_blank" rel="noopener" class="hover:text-blue-600">NPM</a>
+      </div>
+    </div>
+  </footer>
+
+  <div id="errorModal" class="hidden fixed inset-0 z-50 items-center justify-center bg-black/50 p-4">
+    <div class="bg-white dark:bg-slate-900 rounded-2xl max-w-lg w-full border border-slate-200 dark:border-slate-700 shadow-xl p-6 space-y-3">
+      <div class="flex items-center justify-between">
+        <h3 class="text-lg font-semibold">Error Result</h3>
+        <button id="closeModal" class="text-slate-500 hover:text-slate-900 dark:hover:text-white text-xl" aria-label="Close modal">×</button>
+      </div>
+      <div id="modalContent" class="text-sm font-mono bg-slate-50 dark:bg-slate-800/60 rounded-xl p-3 overflow-auto max-h-80"></div>
+      <div>
+        <h4 class="text-sm font-semibold mb-1">Handling snippet</h4>
+        <pre class="language-js rounded-xl"><code class="language-js">try {
+  const res = await corsFetch(url);
+} catch (err) {
+  console.error(err.name, err.message);
+  // Inspect err.code, err.status, err.requestId when present
+}</code></pre>
+      </div>
+      <div class="text-right">
+        <button id="modalOk" class="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold">Got it</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const qs = (s) => document.querySelector(s);
+    const qsa = (s) => Array.from(document.querySelectorAll(s));
+
+    // Load CorsBridge with fallback if CDN blocked
+    const corsSources = [
+      'https://unpkg.com/corsbridge@latest/dist/index.umd.js',
+      'https://cdn.jsdelivr.net/npm/corsbridge/dist/index.umd.js'
+    ];
+    let corsBridgeLoaded = false;
+    function loadScript(src) {
+      return new Promise((resolve, reject) => {
+        const el = document.createElement('script');
+        el.src = src;
+        el.defer = true;
+        el.onload = resolve;
+        el.onerror = reject;
+        document.head.appendChild(el);
+      });
+    }
+    async function ensureCorsBridge() {
+      if (getCorsFetch()) {
+        corsBridgeLoaded = true;
+        return getCorsFetch();
+      }
+      for (const src of corsSources) {
+        try {
+          await loadScript(src);
+          if (getCorsFetch()) {
+            corsBridgeLoaded = true;
+            return getCorsFetch();
+          }
+        } catch (e) {
+          console.warn('CorsBridge load failed for', src, e);
+        }
+      }
+      console.warn('All CDN sources blocked; falling back to lightweight built-in proxy client (fetch via cors.syrins.tech)');
+      window.corsFetch = localCorsFetch;
+      window.CorsBridge = { corsFetch: localCorsFetch };
+      return localCorsFetch;
+    }
+
+    async function localCorsFetch(url, options = {}) {
+      const {
+        method = 'GET',
+        headers = {},
+        body,
+        proxyUrl,
+        timeout,
+        responseType = 'json'
+      } = options;
+      const controller = timeout ? new AbortController() : null;
+      const timer = timeout ? setTimeout(() => controller.abort(), timeout) : null;
+      const proxyCandidates = [
+        proxyUrl,
+        'https://api.cors.syrins.tech',
+        'https://cors.syrins.tech'
+      ].filter(Boolean);
+      let lastErr;
+      try {
+        for (const base of proxyCandidates) {
+          const finalUrl = `${base.replace(/\/$/, '')}/?url=${encodeURIComponent(url)}`;
+          const fetchOpts = {
+            method,
+            signal: controller ? controller.signal : undefined,
+            headers: Object.keys(headers || {}).length ? headers : undefined,
+            mode: 'cors',
+            credentials: 'omit'
+          };
+          if (body && method !== 'GET' && method !== 'HEAD') {
+            fetchOpts.body = body;
+          }
+          try {
+            const res = await fetch(finalUrl, fetchOpts);
+            const clone = res.clone();
+            // mimic convenience parsing based on responseType without consuming original twice
+            if (responseType === 'text') {
+              res.parsedBody = await clone.text();
+            } else if (responseType === 'arrayBuffer') {
+              res.parsedBody = await clone.arrayBuffer();
+            } else if (responseType === 'blob') {
+              res.parsedBody = await clone.blob();
+            } else {
+              // json: read once as text, then try JSON.parse to avoid double-read errors
+              const txt = await clone.text();
+              try {
+                res.parsedBody = JSON.parse(txt);
+              } catch {
+                res.parsedBody = txt;
+              }
+            }
+            return res;
+          } catch (err) {
+            const normalizedErr = err?.name === 'AbortError'
+              ? Object.assign(new Error('Request timed out'), { code: 'TimeoutError', status: 408 })
+              : err;
+            console.warn('Local proxy fetch failed for', base, normalizedErr);
+            lastErr = normalizedErr;
+          }
+        }
+        throw lastErr || new Error('All proxy attempts failed');
+      } finally {
+        if (timer) clearTimeout(timer);
+      }
+    }
+
+
+    qs('#mobileMenu').addEventListener('click', () => {
+      qs('#mobileNav').classList.toggle('hidden');
+    });
+
+    const offlineBanner = qs('#offline-banner');
+    function updateOnline() {
+      if (navigator.onLine) {
+        offlineBanner.classList.add('hidden');
+      } else {
+        offlineBanner.classList.remove('hidden');
+      }
+    }
+    window.addEventListener('online', updateOnline);
+    window.addEventListener('offline', updateOnline);
+    updateOnline();
+
+    // Tabs basic/advanced
+    const tabBasic = qs('#tabBasic');
+    const tabAdvanced = qs('#tabAdvanced');
+    const advancedFields = qs('#advancedFields');
+    tabBasic.addEventListener('click', () => {
+      tabBasic.classList.add('bg-blue-600','text-white');
+      tabAdvanced.classList.remove('bg-blue-600','text-white');
+      tabAdvanced.classList.add('bg-slate-200','dark:bg-slate-700');
+      advancedFields.classList.add('hidden');
+    });
+    tabAdvanced.addEventListener('click', () => {
+      tabAdvanced.classList.add('bg-blue-600','text-white');
+      tabBasic.classList.remove('bg-blue-600','text-white');
+      tabBasic.classList.add('bg-slate-200','dark:bg-slate-700');
+      advancedFields.classList.remove('hidden');
+    });
+
+    // Dynamic rows helpers
+    function addKeyValueRow(container, placeholderKey = 'key', placeholderValue = 'value') {
+      const row = document.createElement('div');
+      row.className = 'flex space-x-2';
+      row.innerHTML = `
+        <input aria-label="${placeholderKey}" class="flex-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="${placeholderKey}">
+        <input aria-label="${placeholderValue}" class="flex-1 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="${placeholderValue}">
+        <button type="button" class="remove-row px-3 py-2 rounded-lg border border-slate-200 dark:border-slate-700 hover:border-red-500 text-sm font-semibold">✕</button>
+      `;
+      container.appendChild(row);
+    }
+    const queryContainer = qs('#queryParams');
+    const headerContainer = qs('#headers');
+    addKeyValueRow(queryContainer, 'key', 'value');
+    addKeyValueRow(headerContainer, 'Header name', 'Header value');
+    qs('#addQuery').addEventListener('click', () => addKeyValueRow(queryContainer, 'key', 'value'));
+    qs('#addHeader').addEventListener('click', () => addKeyValueRow(headerContainer, 'Header name', 'Header value'));
+    document.body.addEventListener('click', (e) => {
+      if (e.target.classList.contains('remove-row')) {
+        e.target.parentElement.remove();
+      }
+    });
+
+    // Hide body for GET/DELETE
+    const methodSelect = qs('#methodSelect');
+    const bodyField = qs('#bodyField');
+    methodSelect.addEventListener('change', () => {
+      const val = methodSelect.value.toUpperCase();
+      if (val === 'GET' || val === 'DELETE') {
+        bodyField.classList.add('hidden');
+      } else {
+        bodyField.classList.remove('hidden');
+      }
+    });
+
+    // Response tabs
+    const respTabs = qsa('.resp-tab');
+    const respSections = {
+      body: qs('#responseBody'),
+      headers: qs('#responseHeaders'),
+      status: qs('#responseStatus'),
+      error: qs('#responseError'),
+    };
+    respTabs.forEach(btn => {
+      btn.addEventListener('click', () => {
+        respTabs.forEach(t => t.classList.remove('bg-blue-600','text-white'));
+        btn.classList.add('bg-blue-600','text-white');
+        Object.entries(respSections).forEach(([key, el]) => {
+          el.classList.toggle('hidden', btn.dataset.tab !== key);
+        });
+      });
+    });
+
+    // Utility functions
+    function parseKeyValues(container) {
+      const entries = {};
+      container.querySelectorAll('div.flex').forEach(row => {
+        const [kInput, vInput] = row.querySelectorAll('input');
+        if (kInput.value.trim()) {
+          entries[kInput.value.trim()] = vInput.value;
+        }
+      });
+      return entries;
+    }
+    function normalizeUrlInput(value) {
+      const raw = (value || '').trim();
+      if (!raw) return { url: null, error: 'URL is required.' };
+      const candidate = /^https?:\/\//i.test(raw) ? raw : `https://${raw}`;
+      try {
+        return { url: new URL(candidate).toString(), error: null };
+      } catch {
+        return { url: null, error: 'URL is invalid. Please include a valid host.' };
+      }
+    }
+    function safeBuildUrl(base, params = {}) {
+      const { url, error } = normalizeUrlInput(base);
+      if (!url) return { url: null, error };
+      const finalUrl = new URL(url);
+      Object.entries(params).forEach(([k,v]) => finalUrl.searchParams.append(k, v));
+      return { url: finalUrl.toString(), error: null };
+    }
+    function hasHeader(headers, name) {
+      return Object.keys(headers || {}).some(k => k.toLowerCase() === name.toLowerCase());
+    }
+    function prepareBody(method, rawBody, headers) {
+      if (method === 'GET' || method === 'DELETE') return { body: undefined, headers };
+      const trimmed = (rawBody || '').trim();
+      if (!trimmed) return { body: undefined, headers };
+      try {
+        const parsed = JSON.parse(trimmed);
+        const pretty = JSON.stringify(parsed, null, 2);
+        if (!hasHeader(headers, 'Content-Type')) headers['Content-Type'] = 'application/json';
+        return { body: pretty, headers };
+      } catch {
+        return { body: trimmed, headers };
+      }
+    }
+    function setPreview(url, options) {
+      const code = `await corsFetch("${url}", ${JSON.stringify(options, null, 2)})`;
+      const el = qs('#requestPreview');
+      el.textContent = code;
+      if (window.Prism) Prism.highlightElement(el);
+    }
+    function getCorsFetch() {
+      return window.corsFetch || (window.CorsBridge && (window.CorsBridge.corsFetch || window.CorsBridge.default || window.CorsBridge)) || window.corsbridge;
+    }
+    function showStatus(msg, success = true) {
+      const el = qs('#requestStatus');
+      el.textContent = msg;
+      el.className = success ? 'text-sm text-green-600 dark:text-green-400' : 'text-sm text-red-600 dark:text-red-400';
+    }
+    function getErrorHint(err = {}) {
+      const code = String(err?.code || err?.name || '').toLowerCase();
+      if (code.includes('ratelimit')) return 'Slow down and retry after the Retry-After header.';
+      if (code.includes('timeout')) return 'Increase timeout or use a faster endpoint.';
+      if (code.includes('payload')) return 'Reduce payload size or chunk the request.';
+      if (code.includes('invalid') || code.includes('validation')) return 'Check URL formatting and required fields.';
+      if (code.includes('hostblocked') || code.includes('ssrf')) return 'Target host is disallowed; use allowed origins or configure allowlist.';
+      if (code.includes('network')) return 'Check connectivity, DNS, or offline status.';
+      if (code.includes('target')) return 'Upstream returned an error; inspect status and logs.';
+      return 'See docs for recovery steps or retry with different parameters.';
+    }
+
+    // Handle form submit
+    const requestForm = qs('#requestForm');
+    const sendBtn = qs('#sendBtn');
+    const sendSpinner = qs('#sendSpinner');
+    requestForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const corsFetchFn = await ensureCorsBridge();
+      if (!corsFetchFn) {
+        showStatus('CorsBridge failed to load from CDN. Check network or CDN blocks.', false);
+        return;
+      }
+      const rawUrl = qs('#urlInput').value.trim();
+      let method = methodSelect.value.toUpperCase();
+      const responseType = qs('#responseType').value;
+      const queryParams = parseKeyValues(queryContainer);
+      const headers = parseKeyValues(headerContainer);
+      const { body, headers: normalizedHeaders } = prepareBody(method, qs('#bodyInput').value, headers);
+      const timeout = qs('#timeoutInput').value ? Number(qs('#timeoutInput').value) : undefined;
+      const proxyUrl = qs('#proxyInput').value.trim() || undefined;
+      const { url: finalUrl, error: urlError } = safeBuildUrl(rawUrl, queryParams);
+      if (!finalUrl) {
+        showStatus(urlError || 'URL is invalid.', false);
+        return;
+      }
+      const options = {
+        method,
+        headers: Object.keys(normalizedHeaders).length ? normalizedHeaders : undefined,
+        body,
+        timeout,
+        responseType,
+        proxyUrl,
+      };
+      setPreview(finalUrl, options);
+      respSections.body.textContent = 'Awaiting response...';
+      respSections.headers.textContent = '–';
+      respSections.status.textContent = '–';
+      respSections.error.textContent = '–';
+      sendBtn.disabled = true;
+      sendSpinner.classList.remove('hidden');
+      showStatus('Sending...', true);
+      try {
+        const res = await corsFetchFn(finalUrl, options);
+        const statusText = res?.statusText || res?.status || 'Success';
+        respSections.status.textContent = JSON.stringify({ status: res?.status, statusText, ok: res?.ok }, null, 2);
+        const headerObj = res?.headers ? Object.fromEntries(res.headers.entries()) : res?.headers || {};
+        respSections.headers.textContent = JSON.stringify(headerObj, null, 2);
+        let bodyDisplay = res;
+        if (res && typeof res.json === 'function') {
+          if (responseType === 'json') bodyDisplay = await res.json();
+          else if (responseType === 'text') bodyDisplay = await res.text();
+          else if (responseType === 'arrayBuffer') bodyDisplay = await res.arrayBuffer();
+          else if (responseType === 'blob') bodyDisplay = await res.blob();
+        }
+        if (bodyDisplay instanceof Blob) {
+          const urlObj = URL.createObjectURL(bodyDisplay);
+          respSections.body.innerHTML = `<a class="text-blue-600 underline" href="${urlObj}" download="response">Download blob</a>`;
+        } else if (bodyDisplay instanceof ArrayBuffer) {
+          respSections.body.textContent = 'arrayBuffer length: ' + bodyDisplay.byteLength;
+        } else if (typeof bodyDisplay === 'object') {
+          respSections.body.textContent = JSON.stringify(bodyDisplay, null, 2);
+        } else {
+          respSections.body.textContent = bodyDisplay;
+        }
+        if (window.Prism) Prism.highlightAll();
+        showStatus('Request completed.', true);
+      } catch (err) {
+        respSections.error.textContent = JSON.stringify({
+          name: err?.name,
+          message: err?.message,
+          code: err?.code,
+          status: err?.status,
+          requestId: err?.requestId || err?.traceId || err?.spanId,
+          hint: getErrorHint(err)
+        }, null, 2);
+        respTabs.forEach(t => t.classList.remove('bg-blue-600','text-white'));
+        qsa('.resp-tab[data-tab="error"]').forEach(t => t.classList.add('bg-blue-600','text-white'));
+        Object.entries(respSections).forEach(([key, el]) => el.classList.toggle('hidden', key !== 'error'));
+        const msg = err?.code === 'TimeoutError' || err?.name === 'AbortError'
+          ? 'Request timed out.'
+          : (err?.message || 'Request failed.');
+        showStatus(msg, false);
+      } finally {
+        sendBtn.disabled = false;
+        sendSpinner.classList.add('hidden');
+      }
+    });
+
+    // Example buttons
+    const examples = {
+      github: {
+        url: 'https://api.github.com/users/github',
+        method: 'GET',
+        headers: { 'User-Agent': 'corsbridge-demo' },
+        responseType: 'json'
+      },
+      coingecko: {
+        url: 'https://api.coingecko.com/api/v3/simple/price',
+        method: 'GET',
+        query: { ids: 'bitcoin', vs_currencies: 'usd' },
+        responseType: 'json'
+      },
+      post: {
+        url: 'https://httpbin.org/post',
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: '{"hello":"world"}',
+        responseType: 'json'
+      }
+    };
+    qsa('.example-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const data = examples[btn.dataset.example];
+        qs('#urlInput').value = data.url;
+        methodSelect.value = data.method;
+        methodSelect.dispatchEvent(new Event('change'));
+        qs('#responseType').value = data.responseType || 'json';
+        queryContainer.innerHTML = '';
+        headerContainer.innerHTML = '';
+        addKeyValueRow(queryContainer);
+        addKeyValueRow(headerContainer);
+        if (data.query) {
+          queryContainer.innerHTML = '';
+          Object.entries(data.query).forEach(([k,v]) => {
+            addKeyValueRow(queryContainer, 'key','value');
+            const row = queryContainer.lastChild;
+            row.querySelectorAll('input')[0].value = k;
+            row.querySelectorAll('input')[1].value = v;
+          });
+        }
+        if (data.headers) {
+          headerContainer.innerHTML = '';
+          Object.entries(data.headers).forEach(([k,v]) => {
+            addKeyValueRow(headerContainer, 'Header name','Header value');
+            const row = headerContainer.lastChild;
+            row.querySelectorAll('input')[0].value = k;
+            row.querySelectorAll('input')[1].value = v;
+          });
+        }
+        qs('#bodyInput').value = data.body || '';
+        setPreview(data.url, data);
+      });
+    });
+
+    // CLI simulator
+    const cliInput = qs('#cliInput');
+    const cliOutput = qs('#cliOutput');
+    function appendCli(text) {
+      cliOutput.textContent += '\\n' + text;
+      cliOutput.scrollTop = cliOutput.scrollHeight;
+    }
+    function parseArgs(cmd) {
+      const tokens = cmd.match(/"(?:\\.|[^"])*"|'(?:\\.|[^'])*'|[^\s]+/g) || [];
+      return tokens.map(t => {
+        const first = t[0];
+        const last = t[t.length - 1];
+        if ((first === '"' && last === '"') || (first === '\'' && last === '\'')) {
+          return t.slice(1, -1);
+        }
+        return t;
+      });
+    }
+    async function runCliCommand(raw) {
+      appendCli('> ' + raw);
+      const args = parseArgs(raw);
+      if (!args.length) return;
+      let url = '';
+      let method = 'GET';
+      const headers = {};
+      const query = {};
+      let body;
+      let proxyUrl;
+      let verbose = false;
+      let responseType = 'json';
+      for (let i=0;i<args.length;i++) {
+        const token = args[i];
+        if (token === 'corsbridge') continue;
+        if (token === '-X' || token === '--request') { method = (args[i+1] || 'GET').toUpperCase(); i++; continue; }
+        if (token === '-H' || token === '--header') {
+          const hv = args[i+1] || '';
+          const [k,...rest] = hv.split(':');
+          if (k) headers[k.trim()] = rest.join(':').trim();
+          i++;
+          continue;
+        }
+        if (token === '-d' || token === '--data') { body = args[i+1]; i++; continue; }
+        if (token === '--proxy') { proxyUrl = args[i+1]; i++; continue; }
+        if (token === '-q' || token === '--query') {
+          const qv = args[i+1] || '';
+          const [k,...rest] = qv.split('=');
+          if (k) query[k] = rest.join('=');
+          i++;
+          continue;
+        }
+        if (token === '--response-type') { responseType = args[i+1] || 'json'; i++; continue; }
+        if (token === '-v' || token === '--verbose') { verbose = true; continue; }
+        if (token.startsWith('http')) { url = token; continue; }
+      }
+      const { url: finalUrl, error: urlError } = safeBuildUrl(url, query);
+      if (!finalUrl) { appendCli('Error: ' + (urlError || 'URL required')); return; }
+      const options = { method, headers: Object.keys(headers).length ? headers : undefined, body, proxyUrl, responseType };
+      const preview = `corsFetch("${finalUrl}", ${JSON.stringify(options, null, 2)})`;
+      if (verbose) appendCli(preview);
+      const corsFetchFn = await ensureCorsBridge();
+      if (!corsFetchFn) { appendCli('CorsBridge not loaded (CDN blocked?).'); return; }
+      corsFetchFn(finalUrl, options).then(async (res) => {
+        let output = res?.parsedBody;
+        if (output === undefined && res && typeof res.json === 'function') {
+          try {
+            if (responseType === 'text') output = await res.text();
+            else if (responseType === 'arrayBuffer') output = await res.arrayBuffer();
+            else if (responseType === 'blob') output = await res.blob();
+            else output = await res.json();
+          } catch {
+            output = await res.text();
+          }
+        }
+        if (output instanceof Blob) {
+          output = `Blob size: ${output.size} bytes`;
+        } else if (output instanceof ArrayBuffer) {
+          output = `arrayBuffer length: ${output.byteLength}`;
+        }
+        appendCli(typeof output === 'object' ? JSON.stringify(output, null, 2) : String(output));
+      }).catch(err => {
+        const message = err?.code === 'TimeoutError' ? 'Request timed out' : (err?.message || err);
+        appendCli('Error: ' + message);
+      });
+    }
+    qs('#runCli').addEventListener('click', () => {
+      const cmd = cliInput.value.trim();
+      if (!cmd) return;
+      runCliCommand(cmd);
+    });
+    cliInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        qs('#runCli').click();
+      }
+    });
+    qsa('.cli-example').forEach(btn => btn.addEventListener('click', () => {
+      cliInput.value = btn.dataset.cmd;
+      qs('#runCli').click();
+    }));
+    qs('#showHelp').addEventListener('click', () => {
+      const help = [
+        'Usage: corsbridge <url> [options]',
+        '-X, --request <METHOD>   HTTP method',
+        '-H, --header <k:v>       Add header',
+        '-d, --data <data>        Request body',
+        '-q, --query <k=v>        Append query param',
+        '--response-type <type>   json|text|blob|arrayBuffer',
+        '--proxy <url>            Override proxy',
+        '-v, --verbose            Show request preview',
+        '--help                   Show help'
+      ].join('\\n');
+      appendCli(help);
+    });
+
+    // Error triggers
+    const modal = qs('#errorModal');
+    const modalContent = qs('#modalContent');
+    function openModal(content) {
+      modalContent.textContent = content;
+      modal.classList.remove('hidden');
+      modal.classList.add('flex');
+      if (window.Prism) Prism.highlightAll();
+    }
+    function closeModal() { modal.classList.add('hidden'); modal.classList.remove('flex'); }
+    qs('#closeModal').addEventListener('click', closeModal);
+    qs('#modalOk').addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => { if (e.target === modal) closeModal(); });
+
+    const errorScenarios = {
+      ValidationError: () => ({
+        url: 'https://httpbin.org/status/400',
+        method: 'GET'
+      }),
+      HostBlockedError: () => ({
+        url: 'http://127.0.0.1',
+        method: 'GET'
+      }),
+      SSRFBlockedError: () => ({
+        url: 'http://169.254.169.254/latest/meta-data',
+        method: 'GET'
+      }),
+      InvalidURLError: () => ({
+        url: 'http://example.com/this-path-is-way-too-long/'.repeat(20),
+        method: 'GET'
+      }),
+      PayloadTooLargeError: () => ({
+        url: 'https://httpbun.com/status/413',
+        method: 'GET'
+      }),
+      RateLimitError: () => ({
+        url: 'https://httpbin.org/status/429',
+        method: 'GET'
+      }),
+      TargetError: () => ({
+        url: 'https://httpbin.org/status/500',
+        method: 'GET'
+      }),
+      TimeoutError: () => ({
+        url: 'https://httpbin.org/delay/10',
+        method: 'GET',
+        timeout: 1200
+      }),
+      NetworkError: () => ({
+        url: 'https://invalid.invalid/path',
+        method: 'GET'
+      })
+    };
+
+    async function runErrorTest(type) {
+      const data = errorScenarios[type]();
+      qs('#urlInput').value = data.url;
+      methodSelect.value = data.method;
+      methodSelect.dispatchEvent(new Event('change'));
+      qs('#bodyInput').value = data.body || '';
+      qs('#timeoutInput').value = data.timeout || '';
+      qs('#responseType').value = 'json';
+      const corsFetchFn = await ensureCorsBridge();
+      if (!corsFetchFn) {
+        openModal(`Could not load CorsBridge; CDN blocked and fallback failed.`);
+        return;
+      }
+      try {
+        const res = await corsFetchFn(data.url, {
+          method: data.method,
+          body: data.body,
+          timeout: data.timeout,
+          responseType: 'json'
+        });
+        let out = res?.parsedBody;
+        if (out === undefined && typeof res?.json === 'function') {
+          try { out = await res.json(); } catch { out = await res.text(); }
+        }
+        const status = res?.status;
+        const hasHttpError = typeof status === 'number' && status >= 400;
+        const hasErrorFlag = out && typeof out === 'object' && out.error;
+        if (hasHttpError || hasErrorFlag) {
+          const err = new Error(out?.message || `HTTP ${status || ''}`.trim());
+          err.name = out?.error ? 'TargetError' : 'HTTPError';
+          err.status = status;
+          err.code = out?.statusCode || status;
+          err.requestId = out?.requestId || out?.traceId || out?.spanId;
+          throw err;
+        }
+        openModal(`Expected error but got response:\n${JSON.stringify(out, null, 2)}`);
+      } catch (err) {
+        console.warn('Error test caught', type, err);
+        openModal(JSON.stringify({
+          type,
+          name: err?.name,
+          message: err?.message,
+          code: err?.code,
+          status: err?.status,
+          requestId: err?.requestId || err?.traceId || err?.spanId,
+          hint: getErrorHint(err)
+        }, null, 2));
+      }
+    }
+
+    qsa('.trigger-error').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const type = btn.closest('.error-card').dataset.error;
+        runErrorTest(type);
+      });
+    });
+
+    // Advanced prefills
+    qsa('.prefill-advanced').forEach(btn => {
+      btn.addEventListener('click', () => {
+        const type = btn.dataset.type;
+        if (type === 'auth') {
+          qs('#urlInput').value = 'https://httpbin.org/headers';
+          methodSelect.value = 'GET';
+          headerContainer.innerHTML = '';
+          addKeyValueRow(headerContainer, 'Authorization', 'Bearer demo-token');
+          const row = headerContainer.lastChild;
+          row.querySelectorAll('input')[0].value = 'Authorization';
+          row.querySelectorAll('input')[1].value = 'Bearer demo-token';
+        }
+        if (type === 'timeout') {
+          qs('#urlInput').value = 'https://httpbin.org/delay/5';
+          methodSelect.value = 'GET';
+          qs('#timeoutInput').value = 1200;
+        }
+        if (type === 'proxy') {
+          qs('#urlInput').value = 'https://api.github.com/rate_limit';
+          methodSelect.value = 'GET';
+          qs('#proxyInput').value = 'https://my-proxy.example.com';
+        }
+        if (type === 'response') {
+          qs('#urlInput').value = 'https://httpbin.org/image/png';
+          methodSelect.value = 'GET';
+          qs('#responseType').value = 'blob';
+        }
+        methodSelect.dispatchEvent(new Event('change'));
+        setPreview(qs('#urlInput').value, {
+          method: methodSelect.value,
+          headers: parseKeyValues(headerContainer),
+          timeout: qs('#timeoutInput').value || undefined,
+          proxyUrl: qs('#proxyInput').value || undefined,
+          responseType: qs('#responseType').value
+        });
+        tabAdvanced.click();
+        showStatus('Advanced demo loaded. Click Send Request to run.', true);
+      });
+    });
+
+    async function runAdvancedTest(type) {
+      const corsFetchFn = await ensureCorsBridge();
+      if (!corsFetchFn) {
+        openModal('Could not load CorsBridge; CDN blocked and fallback failed.');
+        return;
+      }
+      const scenarios = {
+        auth: {
+          url: 'https://httpbin.org/headers',
+          options: {
+            method: 'GET',
+            headers: { Authorization: 'Bearer demo-token' },
+            responseType: 'json'
+          }
+        },
+        timeout: {
+          url: 'https://httpbin.org/delay/5',
+          options: { method: 'GET', timeout: 1200, responseType: 'json' }
+        },
+        proxy: {
+          url: 'https://api.github.com/rate_limit',
+          options: { method: 'GET', proxyUrl: qs('#proxyInput').value || 'https://my-proxy.example.com', responseType: 'json' }
+        },
+        response: {
+          url: 'https://httpbin.org/image/png',
+          options: { method: 'GET', responseType: 'blob' }
+        }
+      };
+      const data = scenarios[type];
+      if (!data) return;
+      try {
+        const res = await corsFetchFn(data.url, data.options);
+        let out = res?.parsedBody;
+        if (out === undefined && typeof res?.json === 'function' && data.options.responseType === 'json') {
+          try { out = await res.json(); } catch { out = await res.text(); }
+        }
+        if (out === undefined && data.options.responseType === 'blob' && res instanceof Response) {
+          const blob = await res.blob();
+          out = `Blob size: ${blob.size} bytes`;
+        }
+        openModal(JSON.stringify({
+          type,
+          status: res?.status,
+          headers: res?.headers ? Object.fromEntries(res.headers.entries()) : undefined,
+          body: out
+        }, null, 2));
+      } catch (err) {
+        openModal(JSON.stringify({
+          type,
+          name: err?.name,
+          message: err?.message,
+          code: err?.code,
+          status: err?.status,
+          requestId: err?.requestId || err?.traceId || err?.spanId,
+          hint: getErrorHint(err)
+        }, null, 2));
+      }
+    }
+
+    // Smooth scroll for nav
+    qsa('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth' });
+        qs('#mobileNav')?.classList.add('hidden');
+      });
+    });
+
+    // Initialize preview
+    setPreview('https://api.example.com/data', { method: 'GET' });
+  </script>
+</body>
+</html>
+
