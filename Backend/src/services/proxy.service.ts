@@ -17,6 +17,7 @@ import {
 import { logger } from './logger.service';
 import { cacheService, type CachedResponse } from './cache.service';
 import { circuitBreakerService } from './circuit-breaker.service';
+import { dedupeService } from './dedupe.service';
 import { metricsService } from './metrics.service';
 
 type ProxyError = NodeJS.ErrnoException & { code?: string };
@@ -48,7 +49,7 @@ const inFlightRequests = new Map<string, InFlightRequest>();
 
 setInterval(() => {
 	const now = Date.now();
-	const timeout = 60_000; 
+	const timeout = 60_000;
 
 	for (const [key, request] of inFlightRequests.entries()) {
 		if (now - request.timestamp > timeout) {
@@ -84,10 +85,12 @@ function resolveInFlightRequest(cacheKey: string | undefined, payload: CachedRes
 	}
 	const entry = inFlightRequests.get(cacheKey);
 	if (!entry) {
+		void dedupeService.release(cacheKey);
 		return;
 	}
 	inFlightRequests.delete(cacheKey);
 	entry.resolve(payload);
+	void dedupeService.release(cacheKey);
 }
 
 function rejectInFlightRequest(cacheKey: string | undefined, error: Error): void {
@@ -96,11 +99,26 @@ function rejectInFlightRequest(cacheKey: string | undefined, error: Error): void
 	}
 	const entry = inFlightRequests.get(cacheKey);
 	if (!entry) {
+		void dedupeService.release(cacheKey);
 		return;
 	}
 	inFlightRequests.delete(cacheKey);
 	entry.reject(error);
+	void dedupeService.release(cacheKey);
 }
+
+const timeoutErrorCodes = new Set([
+	'ETIMEDOUT',
+	'ECONNABORTED',
+	'ESOCKETTIMEDOUT',
+	'ECONNRESET',
+	'UND_ERR_ABORTED',
+	'UND_ERR_CONNECT_TIMEOUT',
+	'UND_ERR_HEADERS_TIMEOUT',
+	'UND_ERR_BODY_TIMEOUT',
+	'ERR_STREAM_PREMATURE_CLOSE',
+	'ERR_SSL_INVALID_SESSION_ID',
+]);
 
 const proxy = httpProxy.createProxyServer({
 	changeOrigin: proxyConfig.changeOrigin,
@@ -117,146 +135,192 @@ proxy.on('proxyRes', handleProxyResponse);
 
 export const proxyRouter = Router();
 
-proxyRouter.all('*', (req: Request, res: Response, next: NextFunction) => {
-	const method = req.method?.toUpperCase() ?? 'GET';
+proxyRouter.all(/(.*)/, async (req: Request, res: Response, next: NextFunction) => {
+	try {
+		const method = req.method?.toUpperCase() ?? 'GET';
 
-	if (!allowedMethods.has(method)) {
-		res.setHeader('Allow', proxyConfig.allowedMethods.join(', '));
-		next(new HttpError('Method not allowed', 405));
-		return;
-	}
-
-	if (method === 'OPTIONS' && !proxyConfig.optionsPassthrough) {
-		res.status(204).setHeader('Cache-Control', 'public, max-age=86400');
-		res.end();
-		return;
-	}
-
-	if (!req.targetUrl) {
-		next(new ValidationError('Missing target URL', 400));
-		return;
-	}
-
-	const targetUrl = req.targetUrl;
-	const cacheable = isRequestCacheable(req);
-
-	req.redirectCount = 0;
-
-	const targetHost = getTargetOrigin(targetUrl);
-	if (!targetHost) {
-		next(new ValidationError('Invalid target URL', 400));
-		return;
-	}
-	if (!circuitBreakerService.canAttempt(targetHost)) {
-		logger.warn(
-			{
-				requestId: req.requestId,
-				target: targetHost,
-			},
-			'Circuit breaker open - rejecting request',
-		);
-		res.setHeader('X-Circuit-Breaker', 'OPEN');
-		next(new HttpError('Target service temporarily unavailable', 503));
-		return;
-	}
-
-	if (cacheable) {
-		const cacheKey = cacheService.buildKey(method, targetUrl, req.headers.accept);
-		req.cacheKey = cacheKey;
-		req.cacheCandidate = true;
-
-		const cached = cacheService.get(cacheKey);
-		if (cached) {
-			respondFromCache(res, cached);
+		if (!allowedMethods.has(method)) {
+			res.setHeader('Allow', proxyConfig.allowedMethods.join(', '));
+			next(new HttpError('Method not allowed', 405));
 			return;
 		}
 
-		const inFlight = inFlightRequests.get(cacheKey);
-		if (inFlight) {
-			metricsService.recordCache('dedupe');
-
-			void inFlight.promise
-				.then((cachedResponse) => {
-					respondFromCache(res, cachedResponse);
-				})
-				.catch((error) => {
-					logger.error(
-						{
-							requestId: req.requestId,
-							error,
-						},
-						'In-flight request failed',
-					);
-					next(error);
-				});
+		if (method === 'OPTIONS' && !proxyConfig.optionsPassthrough) {
+			res.status(204).setHeader('Cache-Control', 'public, max-age=86400');
+			res.end();
 			return;
 		}
 
-		trackInFlightRequest(cacheKey);
-
-		res.setHeader('X-Proxy-Cache', 'MISS');
-		metricsService.recordCache('miss');
-	} else {
-		res.setHeader('X-Proxy-Cache', 'BYPASS');
-		metricsService.recordCache('bypass');
-	}
-
-	const cleanupBodyListener = attachBodySizeGuard(req);
-	attachClientTimeout(req);
-	prepareProxyRequestHeaders(req);
-
-	const proxyOptions = buildProxyOptions(targetUrl);
-
-	req.once('aborted', () => {
-		logger.warn(
-			{
-				requestId: req.requestId,
-				method: req.method,
-				target: targetUrl,
-			},
-			'Client aborted request before completion',
-		);
-		rejectInFlightRequest(req.cacheKey, new GatewayTimeoutError('Client aborted request before completion'));
-	});
-
-	proxy.web(req, res, proxyOptions, (error) => {
-		cleanupBodyListener();
-
-		if (!error) {
+		if (!req.targetUrl) {
+			next(new ValidationError('Missing target URL', 400));
 			return;
 		}
 
-		recordTargetFailure(targetHost);
-		const mappedError = mapProxyError(error);
-		rejectInFlightRequest(req.cacheKey, mappedError);
+		const targetUrl = req.targetUrl;
+		const bypassCache = shouldBypassCache(req);
+		const cacheable = isRequestCacheable(req) && !bypassCache;
 
-		logger.error(
-			{
-				requestId: req.requestId,
-				method: req.method,
-				target: targetUrl,
-				code: (error as ProxyError).code ?? error.name,
-				message: error.message,
-			},
-			'Proxy request failed',
-		);
+		req.redirectCount = 0;
 
-		if (!isResponseWritable(res)) {
+		const targetHost = getTargetOrigin(targetUrl);
+		if (!targetHost) {
+			next(new ValidationError('Invalid target URL', 400));
+			return;
+		}
+
+		if (targetHost && !(await circuitBreakerService.canAttempt(targetHost))) {
 			logger.warn(
 				{
 					requestId: req.requestId,
-					target: targetUrl,
+					target: targetHost,
 				},
-				'Skipping proxy error response because client connection already closed',
+				'Circuit breaker open - rejecting request',
 			);
-			if (!res.writableEnded && !res.writableFinished && !(res as any).destroyed) {
-				res.end();
-			}
+			res.setHeader('X-Circuit-Breaker', 'OPEN');
+			res.setHeader('X-Proxy-Status', 'CIRCUIT_OPEN');
+			next(new HttpError('Target service temporarily unavailable', 503));
 			return;
 		}
 
-		next(mappedError);
-	});
+		if (cacheable) {
+			const cacheKey = cacheService.buildKey(method, targetUrl, req.headers.accept);
+			req.cacheKey = cacheKey;
+			req.cacheCandidate = true;
+
+			const cached = await cacheService.get(cacheKey);
+			if (cached) {
+				res.setHeader('X-Proxy-Status', 'HIT');
+				respondFromCache(res, cached);
+				return;
+			}
+
+			const inFlight = inFlightRequests.get(cacheKey);
+			if (inFlight) {
+				metricsService.recordCache('dedupe');
+
+				void inFlight.promise
+					.then((cachedResponse) => {
+						res.setHeader('X-Proxy-Status', 'HIT');
+						respondFromCache(res, cachedResponse);
+					})
+					.catch((error) => {
+						logger.error(
+							{
+								requestId: req.requestId,
+								error,
+							},
+							'In-flight request failed',
+						);
+						next(error);
+					});
+				return;
+			}
+
+			if (dedupeService.supportsDistributedLocks()) {
+				const distributedRole = await dedupeService.tryAcquire(cacheKey);
+				if (distributedRole === 'follower') {
+					metricsService.recordCache('dedupe');
+					res.setHeader('X-Proxy-Status', 'DEDUPE_FOLLOWER');
+
+					const remotePayload = await dedupeService.waitForRemote(cacheKey);
+					if (remotePayload) {
+						res.setHeader('X-Proxy-Status', 'HIT');
+						respondFromCache(res, remotePayload);
+						return;
+					}
+
+					const promotedRole = await dedupeService.promote(cacheKey);
+					if (promotedRole === 'follower') {
+						logger.warn(
+							{
+								requestId: req.requestId,
+								cacheKey,
+							},
+							'Distributed dedupe wait timed out — responding with 504',
+						);
+						next(new GatewayTimeoutError('Another proxy node is still processing this request'));
+						return;
+					}
+				}
+			}
+
+			trackInFlightRequest(cacheKey);
+
+			res.setHeader('X-Proxy-Cache', 'MISS');
+			res.setHeader('X-Proxy-Status', 'MISS');
+			metricsService.recordCache('miss');
+		} else {
+			res.setHeader('X-Proxy-Cache', 'BYPASS');
+			res.setHeader('X-Proxy-Status', 'BYPASS');
+			if (bypassCache) {
+				res.setHeader('X-Proxy-Bypass-Reason', 'CLIENT_REQUEST');
+			}
+			metricsService.recordCache('bypass');
+		}
+
+		const cleanupBodyListener = attachBodySizeGuard(req);
+		attachClientTimeout(req);
+		prepareProxyRequestHeaders(req);
+
+		const proxyOptions = {
+			...buildProxyOptions(targetUrl),
+			proxyTimeout: Number(process.env.PROXY_PROXY_TIMEOUT || 30000),
+			timeout: Number(process.env.PROXY_TIMEOUT || 30000),
+		};
+
+		req.once('aborted', () => {
+			logger.warn(
+				{
+					requestId: req.requestId,
+					method: req.method,
+					target: targetUrl,
+				},
+				'Client aborted request before completion',
+			);
+			rejectInFlightRequest(req.cacheKey, new GatewayTimeoutError('Client aborted request before completion'));
+		});
+
+		proxy.web(req, res, proxyOptions, (error) => {
+			cleanupBodyListener();
+
+			if (!error) {
+				return;
+			}
+
+			recordTargetFailure(targetHost);
+			const mappedError = mapProxyError(error);
+			rejectInFlightRequest(req.cacheKey, mappedError);
+
+			logger.error(
+				{
+					requestId: req.requestId,
+					method: req.method,
+					target: targetUrl,
+					code: (error as ProxyError).code ?? error.name,
+					message: error.message,
+				},
+				'Proxy request failed',
+			);
+
+			if (!isResponseWritable(res)) {
+				logger.warn(
+					{
+						requestId: req.requestId,
+						target: targetUrl,
+					},
+					'Skipping proxy error response because client connection already closed',
+				);
+				if (!res.writableEnded && !res.writableFinished && !(res as any).destroyed) {
+					res.end();
+				}
+				return;
+			}
+
+			next(mappedError);
+		});
+	} catch (error) {
+		next(error);
+	}
 });
 
 function attachClientTimeout(req: Request): void {
@@ -362,6 +426,13 @@ function handleProxyResponse(
 
 	if (enforceRedirectLimits(req, proxyRes)) {
 		return;
+	}
+
+	if (req.startTime) {
+		const duration = Date.now() - req.startTime;
+		// Estimate upstream time as duration since we entered proxy (roughly)
+		// Precise upstream timing requires wrapping proxy.web, but total is good enough for now.
+		res.setHeader('X-Proxy-Timing', `total=${duration}ms`);
 	}
 
 	const cacheCollector = initCacheCollector(req, proxyRes);
@@ -514,17 +585,25 @@ function mapProxyError(error: Error | null | undefined): HttpError {
 		return error;
 	}
 
-	const code = (error as ProxyError).code ?? error.name;
+	const rawCode =
+		(error as ProxyError).code ??
+		((error as { cause?: ProxyError }).cause?.code ?? undefined) ??
+		error.name;
+	const code = rawCode?.toUpperCase();
+	const name = error.name;
+	const message = error.message ?? '';
+
+	if (isTimeoutLikeError(code, name, message)) {
+		return new GatewayTimeoutError('Target response timed out', {
+			reason: 'upstream-timeout',
+			code,
+		});
+	}
 
 	switch (code) {
-		case 'ETIMEDOUT':
-		case 'ECONNABORTED':
-		case 'ESOCKETTIMEDOUT':
-			return new GatewayTimeoutError('Target response timed out');
 		case 'ECONNREFUSED':
 		case 'EHOSTUNREACH':
 		case 'ENOTFOUND':
-		case 'ECONNRESET':
 			return new BadGatewayError('Target host not reachable');
 		case 'ERR_FR_MAX_REDIRECTS':
 		case 'ERR_TOO_MANY_REDIRECTS':
@@ -539,6 +618,22 @@ function mapProxyError(error: Error | null | undefined): HttpError {
 	}
 
 	return new HttpError('Proxy request failed', 500);
+}
+
+function isTimeoutLikeError(code: string | undefined, name: string, message: string): boolean {
+	if (timeoutErrorCodes.has(code ?? '')) {
+		return true;
+	}
+
+	if (/timeout|timed out/i.test(message)) {
+		return true;
+	}
+
+	if (/socket hang up|client network socket disconnected/i.test(message)) {
+		return true;
+	}
+
+	return name === 'AbortError' || name === 'TimeoutError';
 }
 
 function isRequestCacheable(req: Request): boolean {
@@ -662,7 +757,7 @@ function initCacheCollector(
 				body,
 			};
 
-			cacheService.set(cacheKey, cachedResponse);
+			void cacheService.set(cacheKey, cachedResponse);
 			settled = true;
 			resolveInFlightRequest(cacheKey, cachedResponse);
 		},
@@ -721,4 +816,17 @@ function isResponseWritable(res: Response): boolean {
 		return false;
 	}
 	return true;
+}
+
+function shouldBypassCache(req: Request): boolean {
+	if (req.query?.refresh === 'true') {
+		return true;
+	}
+	if (req.headers['cache-control'] === 'no-cache') {
+		return true;
+	}
+	if (req.headers['pragma'] === 'no-cache') {
+		return true;
+	}
+	return false;
 }

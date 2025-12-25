@@ -4,26 +4,27 @@ import { rateLimitConfig } from '../config/rate-limit.config';
 import { logger } from '../services/logger.service';
 import { normalizeIp } from '../utils/ip.utils';
 
-interface UsageRecord {
+interface AbuseRecord {
   count: number;
   firstSeen: number;
   warned: boolean;
-  alerted: boolean;
+  blockedUntil: number;
 }
 
-const usagePerIp = new Map<string, UsageRecord>();
-const windowMs = rateLimitConfig.windowMs;
+const abuseStore = new Map<string, AbuseRecord>();
+const SPIKE_WINDOW_MS = 60 * 1000; // 1 minute window for spike detection
 
+// Cleanup interval
 setInterval(() => {
   const now = Date.now();
-  for (const [ip, record] of usagePerIp.entries()) {
-    if (now - record.firstSeen > windowMs) {
-      usagePerIp.delete(ip);
+  for (const [ip, record] of abuseStore.entries()) {
+    if (now > record.blockedUntil && now - record.firstSeen > SPIKE_WINDOW_MS) {
+      abuseStore.delete(ip);
     }
   }
-}, Math.min(windowMs, 5 * 60_000)).unref();
+}, 60000).unref();
 
-export function abuseMonitor(req: Request, _res: Response, next: NextFunction): void {
+export function abuseMonitor(req: Request, res: Response, next: NextFunction): void {
   if (!rateLimitConfig.abuseMonitoringEnabled) {
     next();
     return;
@@ -32,22 +33,62 @@ export function abuseMonitor(req: Request, _res: Response, next: NextFunction): 
   const ip = normalizeIp(req.ip || req.socket.remoteAddress);
   const now = Date.now();
 
-  let record = usagePerIp.get(ip);
-  if (!record || now - record.firstSeen > windowMs) {
-    record = { count: 0, firstSeen: now, warned: false, alerted: false };
+  let record = abuseStore.get(ip);
+
+  // Check if blocked
+  if (record && record.blockedUntil > now) {
+    const retryAfter = Math.ceil((record.blockedUntil - now) / 1000);
+    res.setHeader('Retry-After', retryAfter);
+    res.status(429).json({
+      error: true,
+      message: 'Temporarily blocked due to suspicious activity. Please try again later.',
+      retryAfter
+    });
+    return;
   }
 
-  record.count += 1;
-  usagePerIp.set(ip, record);
-
-  if (!record.warned && rateLimitConfig.warnThreshold > 0 && record.count >= rateLimitConfig.warnThreshold) {
-    record.warned = true;
-    logger.warn({ ip, requestId: req.requestId, count: record.count, windowMs }, 'High request volume detected for IP');
+  // Initialize or Reset Window
+  if (!record || now - record.firstSeen > SPIKE_WINDOW_MS) {
+    record = {
+      count: 0,
+      firstSeen: now,
+      warned: false,
+      blockedUntil: 0
+    };
   }
 
-  if (!record.alerted && rateLimitConfig.alertThreshold > 0 && record.count >= rateLimitConfig.alertThreshold) {
-    record.alerted = true;
-    logger.error({ ip, requestId: req.requestId, count: record.count, windowMs }, 'Abuse alert threshold exceeded for IP');
+  record.count++;
+  abuseStore.set(ip, record);
+
+  // Checks
+  const spikeThreshold = rateLimitConfig.abuseSpikeThreshold || 200; // e.g. 200 req/min
+
+  if (record.count > spikeThreshold) {
+    const blockDurationMs = (rateLimitConfig.abuseBlockDurationMinutes || 15) * 60 * 1000;
+    record.blockedUntil = now + blockDurationMs;
+    abuseStore.set(ip, record);
+
+    logger.error(
+      {
+        ip,
+        reqId: req.requestId,
+        count: record.count,
+        threshold: spikeThreshold
+      },
+      'Abuse Detected: IP temporarily blocked due to traffic spike'
+    );
+
+    res.status(429).json({
+      error: true,
+      message: 'Too many requests. Temporarily blocked.',
+      retryAfter: blockDurationMs / 1000
+    });
+    return;
+  }
+
+  // Additional Checks (Suspicious User-Agent, etc.) could go here
+  if (!req.get('User-Agent')) {
+    // Optional: Flag missing UA
   }
 
   next();

@@ -1,13 +1,15 @@
 import pino from 'pino';
 
-const level = process.env.LOG_LEVEL ?? 'info';
-const serviceName = process.env.SERVICE_NAME ?? 'corsbridge-backend';
+import { appConfig } from '../config/app.config';
+
+const level = appConfig.logLevel;
+const serviceName = appConfig.serviceName;
 
 export const logger = pino({
   level,
   base: {
     service: serviceName,
-    env: process.env.NODE_ENV ?? 'development',
+    env: appConfig.nodeEnv,
   },
   formatters: {
     level: (label) => ({ level: label }),

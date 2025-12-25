@@ -1,16 +1,25 @@
-import type { NextFunction, Request, Response } from 'express';
-
-import { HttpError } from '../utils/errors';
+import { type Request, type Response, type NextFunction } from 'express';
+import { HttpError } from 'http-errors';
+import * as Sentry from '@sentry/node';
 import { logger } from '../services/logger.service';
 
-export function errorHandler(err: unknown, req: Request, res: Response, next: NextFunction): void {
+export const errorHandler = (
+  error: HttpError,
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): void => {
   if (res.headersSent) {
-    next(err);
+    next(error);
     return;
   }
 
-  const statusCode = err instanceof HttpError ? err.statusCode : 500;
-  const message = err instanceof HttpError ? err.message : 'Internal Server Error';
+  if (process.env.ERROR_TRACKING_DSN && (!error.statusCode || error.statusCode >= 500)) {
+    Sentry.captureException(error);
+  }
+
+  const statusCode = error.statusCode || 500;
+  const message = error.message || 'Internal Server Error';
   const safeMessage = statusCode >= 500 ? 'Internal Server Error' : message;
 
   logger.error(
@@ -20,7 +29,7 @@ export function errorHandler(err: unknown, req: Request, res: Response, next: Ne
       method: req.method,
       url: req.originalUrl,
       statusCode,
-      error: err instanceof Error ? err.stack : err,
+      error: error instanceof Error ? error.stack : error,
     },
     'Request failed',
   );
@@ -35,9 +44,9 @@ export function errorHandler(err: unknown, req: Request, res: Response, next: Ne
     timestamp: new Date().toISOString(),
   };
 
-  if (err instanceof HttpError && err.details) {
-    responsePayload.details = err.details;
+  if (error instanceof HttpError && (error as any).details) {
+    responsePayload.details = (error as any).details;
   }
 
   res.status(statusCode).json(responsePayload);
-}
+};

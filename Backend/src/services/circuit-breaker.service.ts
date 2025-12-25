@@ -28,12 +28,12 @@ class Circuit {
 	private successCount = 0;
 	private nextAttemptTime = 0;
 	private failures: number[] = [];
-  private lastTouched = Date.now();
+	private lastTouched = Date.now();
 
 	constructor(
 		private readonly target: string,
 		private readonly config: CircuitBreakerConfig,
-	) {}
+	) { }
 
 	/**
 	 * Check if request should be allowed
@@ -75,7 +75,7 @@ class Circuit {
 	 */
 	recordSuccess(): void {
 		const now = Date.now();
-    this.lastTouched = now;
+		this.lastTouched = now;
 
 		switch (this.state) {
 			case CircuitState.HALF_OPEN:
@@ -111,7 +111,7 @@ class Circuit {
 	recordFailure(): void {
 		const now = Date.now();
 		this.failures.push(now);
-    this.lastTouched = now;
+		this.lastTouched = now;
 
 		this.failures = this.failures.filter((time) => now - time < this.config.windowSize);
 		this.failureCount = this.failures.length;
@@ -161,9 +161,9 @@ class Circuit {
 		return this.failureCount;
 	}
 
-  get lastUpdated(): number {
-    return this.lastTouched;
-  }
+	get lastUpdated(): number {
+		return this.lastTouched;
+	}
 }
 
 /**
@@ -179,8 +179,8 @@ class CircuitBreakerService {
 		windowSize: Number(process.env.CIRCUIT_BREAKER_WINDOW_MS) || 120_000,
 	};
 
-  private readonly maxCircuits = Number(process.env.CIRCUIT_BREAKER_MAX_TARGETS ?? 1000);
-  private readonly circuitTtlMs = Number(process.env.CIRCUIT_BREAKER_TTL_MS ?? 30 * 60 * 1000);
+	private readonly maxCircuits = Number(process.env.CIRCUIT_BREAKER_MAX_TARGETS ?? 1000);
+	private readonly circuitTtlMs = Number(process.env.CIRCUIT_BREAKER_TTL_MS ?? 30 * 60 * 1000);
 
 	/**
 	 * Get or create circuit for a target
@@ -190,7 +190,11 @@ class CircuitBreakerService {
 		if (!circuit) {
 			circuit = new Circuit(target, this.defaultConfig);
 			this.circuits.set(target, circuit);
-      this.pruneCircuits();
+
+			// Only prune if we exceeded limits
+			if (this.circuits.size > this.maxCircuits) {
+				this.pruneCircuits();
+			}
 		}
 		return circuit;
 	}

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cors-Bridge Dashboard</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #0f172a; color: #e2e8f0; }
+        .card { background-color: #1e293b; border-radius: 0.75rem; padding: 1.5rem; border: 1px solid #334155; }
+        .stat-value { font-size: 2rem; font-weight: 700; color: #38bdf8; }
+        .stat-label { font-size: 0.875rem; color: #94a3b8; }
+        .grid-layout { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    </style>
+</head>
+<body class="p-8 max-w-7xl mx-auto">
+    <header class="mb-8 border-b border-gray-700 pb-4">
+        <h1 class="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-indigo-500">
+            Cors-Bridge Status
+        </h1>
+        <p class="text-gray-400 mt-2">Real-time usage statistics and system health.</p>
+    </header>
+
+    <div id="loading" class="text-center py-20 animate-pulse">Loading analytics...</div>
+
+    <div id="content" class="hidden">
+        <div class="grid-layout">
+            <div class="card">
+                <div class="stat-value" id="totalRequests">-</div>
+                <div class="stat-label">Total Requests</div>
+            </div>
+            <div class="card">
+                <div class="stat-value text-green-400" id="uptime">-</div>
+                <div class="stat-label">Uptime</div>
+            </div>
+            <div class="card">
+                <div class="stat-value text-purple-400" id="rps">-</div>
+                <div class="stat-label">Req/Sec (Last 5m)</div>
+            </div>
+            <div class="card">
+                <div class="stat-value text-red-400" id="errorRate">-</div>
+                <div class="stat-label">Error Rate</div>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+            <div class="card">
+                <h3 class="text-xl font-semibold mb-4">Cache Performance</h3>
+                <canvas id="cacheChart"></canvas>
+            </div>
+            <div class="card">
+                <h3 class="text-xl font-semibold mb-4">Response Time Distribution (ms)</h3>
+                <canvas id="latencyChart"></canvas>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+             <div class="card">
+                <h3 class="text-xl font-semibold mb-4">Top Targets</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm text-left text-gray-400">
+                        <thead class="text-xs text-gray-300 uppercase bg-gray-800">
+                            <tr>
+                                <th class="px-4 py-2">Target</th>
+                                <th class="px-4 py-2 text-right">Requests</th>
+                            </tr>
+                        </thead>
+                        <tbody id="topTargetsBody" class="divide-y divide-gray-700"></tbody>
+                    </table>
+                </div>
+            </div>
+             <div class="card">
+                <h3 class="text-xl font-semibold mb-4">System Health</h3>
+                <div class="space-y-4">
+                     <div class="flex justify-between items-center bg-gray-800 p-3 rounded">
+                        <span>Memory (RSS)</span>
+                        <span id="memoryUsage" class="font-mono text-white">0 MB</span>
+                    </div>
+                     <div class="flex justify-between items-center bg-gray-800 p-3 rounded">
+                        <span>Rate Limit Hits</span>
+                        <span id="rateLimitHits" class="font-mono text-yellow-400">0</span>
+                    </div>
+                     <div class="flex justify-between items-center bg-gray-800 p-3 rounded">
+                        <span>Throttled Requests</span>
+                        <span id="throttledRequests" class="font-mono text-orange-400">0</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const ctxCache = document.getElementById('cacheChart').getContext('2d');
+        const ctxLatency = document.getElementById('latencyChart').getContext('2d');
+        let cacheChart, latencyChart;
+
+        async function fetchStats() {
+            try {
+                const res = await fetch('/stats');
+                const data = await res.json();
+                render(data);
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('content').classList.remove('hidden');
+            } catch (err) {
+                console.error('Failed to fetch stats', err);
+            }
+        }
+
+        function formatDuration(seconds) {
+            const h = Math.floor(seconds / 3600);
+            const m = Math.floor((seconds % 3600) / 60);
+            return `${h}h ${m}m`;
+        }
+
+        function render(data) {
+            document.getElementById('totalRequests').textContent = data.totalRequests.toLocaleString();
+            document.getElementById('uptime').textContent = formatDuration(data.uptime);
+            document.getElementById('errorRate').textContent = (data.errorRate * 100).toFixed(2) + '%';
+            document.getElementById('rps').textContent = (data.avgResponseTime).toFixed(0) + 'ms (Avg)'; // Reusing slot for latency temporarily or calc RPS if we had it
+            
+            document.getElementById('memoryUsage').textContent = Math.round(data.memory.rss / 1024 / 1024) + ' MB';
+            document.getElementById('rateLimitHits').textContent = data.rateLimitHits;
+            document.getElementById('throttledRequests').textContent = data.throttledRequests;
+
+            // Cache Chart
+            const cacheData = [data.cache.hit, data.cache.miss, data.cache.bypass];
+            if (cacheChart) {
+                cacheChart.data.datasets[0].data = cacheData;
+                cacheChart.update();
+            } else {
+                cacheChart = new Chart(ctxCache, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['Hit', 'Miss', 'Bypass'],
+                        datasets: [{
+                            data: cacheData,
+                            backgroundColor: ['#4ade80', '#f87171', '#94a3b8'],
+                            borderWidth: 0
+                        }]
+                    },
+                    options: { responsive: true, plugins: { legend: { position: 'right' } } }
+                });
+            }
+
+            // Latency Chart
+            const p = data.percentiles;
+            const latData = [p.p50, p.p95, p.p99];
+            if (latencyChart) {
+                latencyChart.data.datasets[0].data = latData;
+                latencyChart.update();
+            } else {
+                latencyChart = new Chart(ctxLatency, {
+                    type: 'bar',
+                    data: {
+                        labels: ['P50', 'P95', 'P99'],
+                        datasets: [{
+                            label: 'Latency (ms)',
+                            data: latData,
+                            backgroundColor: '#818cf8',
+                            borderRadius: 4
+                        }]
+                    },
+                    options: { scales: { y: { beginAtZero: true, grid: { color: '#334155' } } } }
+                });
+            }
+
+            // Top Targets
+            const tbody = document.getElementById('topTargetsBody');
+            tbody.innerHTML = data.topTargets.slice(0, 10).map(t => `
+                <tr class="bg-gray-800 border-b border-gray-700">
+                    <td class="px-4 py-2 font-mono text-xs text-blue-300 truncate max-w-xs" title="${t.target}">${t.target}</td>
+                    <td class="px-4 py-2 text-right">${t.count.toLocaleString()}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Initial Load & Polling
+        fetchStats();
+        setInterval(fetchStats, 5000);
+    </script>
+</body>
+</html>

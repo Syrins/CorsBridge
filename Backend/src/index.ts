@@ -1,15 +1,34 @@
 import 'dotenv/config';
+import { validateEnv } from './config/env.schema';
+
+// Validate environment before doing anything else
+validateEnv();
+
 import os from 'os';
 import type http from 'http';
 import type { Socket } from 'net';
 
 import { createServer, setShuttingDownState } from './server';
 import { logger } from './services/logger.service';
+import { disableTlsSessionReuse } from './utils/tls';
+import { getActiveRequestCount } from './middleware/requestLogger';
+import * as Sentry from '@sentry/node';
 
-const port = Number(process.env.PORT) || 3000;
-const host = process.env.HOST || '0.0.0.0';
-const memoryThresholdMb = Number(process.env.MEMORY_RESTART_THRESHOLD_MB ?? 0);
-const memoryGuardIntervalMs = Number(process.env.MEMORY_GUARD_INTERVAL_MS ?? 60_000);
+import { appConfig } from './config/app.config';
+
+if (appConfig.errorTrackingDsn) {
+  Sentry.init({
+    dsn: appConfig.errorTrackingDsn,
+    environment: appConfig.nodeEnv,
+    tracesSampleRate: 1.0,
+  });
+  logger.info('Sentry initialized for error tracking');
+}
+
+const port = appConfig.port;
+const host = appConfig.host;
+const memoryThresholdMb = appConfig.memoryRestartThresholdMb;
+const memoryGuardIntervalMs = appConfig.memoryGuardIntervalMs;
 
 function getLocalIpAddress(): string {
   const interfaces = os.networkInterfaces();
@@ -24,6 +43,7 @@ function getLocalIpAddress(): string {
 }
 
 async function bootstrap(): Promise<void> {
+  disableTlsSessionReuse();
   const server = await createServer();
   const connections = trackConnections(server);
   registerProcessHandlers(server, connections);
@@ -96,37 +116,64 @@ function startMemoryGuard(server: http.Server, connections: Set<Socket>): void {
   }, interval).unref();
 }
 
-let shuttingDown = false;
+let isShuttingDown = false;
 
-function initiateShutdown(
+async function initiateShutdown(
   reason: string,
   server: http.Server,
   connections: Set<Socket>,
   exitCode: number,
-): void {
-  if (shuttingDown) {
-    return;
-  }
-
-  shuttingDown = true;
+): Promise<void> {
+  if (isShuttingDown) return;
+  isShuttingDown = true;
   setShuttingDownState(true);
-  logger.warn({ reason }, 'Shutting down server');
 
-  server.close((error) => {
+  logger.warn({ reason }, 'Shutdown signal received. Starting graceful shutdown...');
+
+  const start = Date.now();
+  const SHUTDOWN_TIMEOUT_MS = 30000;
+  const CHECK_INTERVAL_MS = 500;
+
+  const waitForDrain = async () => {
+    while (Date.now() - start < SHUTDOWN_TIMEOUT_MS) {
+      const activeRequests = getActiveRequestCount();
+      if (activeRequests === 0) {
+        logger.info('All active requests drained.');
+        return;
+      }
+      logger.info({ activeRequests }, 'Waiting for requests to drain...');
+      await new Promise((resolve) => setTimeout(resolve, CHECK_INTERVAL_MS));
+    }
+    logger.warn('Shutdown timeout reached. Forcing exit with active requests.');
+  };
+
+  server.close(async (error) => {
     if (error) {
       logger.error({ error }, 'Error while closing HTTP server');
       process.exit(exitCode || 1);
       return;
     }
-    logger.info('HTTP server closed gracefully');
-    process.exit(exitCode);
+    logger.info('HTTP server closed gracefully.');
+    await waitForDrain(); // Wait for requests to drain after server stops accepting new ones
+
+    // Cleanup other resources...
+    try {
+      // Destroy any remaining open connections
+      connections.forEach((socket) => socket.destroy());
+      logger.info('All connections destroyed.');
+      process.exit(exitCode);
+    } catch (cleanupError) {
+      logger.error({ error: cleanupError }, 'Error during shutdown cleanup');
+      process.exit(1);
+    }
   });
 
+  // Force exit if server.close takes too long (e.g. keep-alive connections or long-running requests)
   setTimeout(() => {
-    logger.error('Forcing shutdown after timeout');
-    connections.forEach((socket) => socket.destroy());
+    logger.error('Force shutting down due to timeout');
+    connections.forEach((socket) => socket.destroy()); // Ensure all sockets are destroyed
     process.exit(1);
-  }, 10_000).unref();
+  }, SHUTDOWN_TIMEOUT_MS + 5000).unref();
 
   connections.forEach((socket) => {
     socket.end();

@@ -1,7 +1,22 @@
 import type { NextFunction, Request, Response } from 'express';
 
 import { proxyConfig } from '../config/proxy.config';
-import { corsConfig } from '../config/cors.config';
+import { corsConfig, DEFAULT_ALLOWED_HEADERS } from '../config/cors.config';
+
+const normalizeHeaderName = (header: string): string => header.trim().toLowerCase();
+const ESSENTIAL_HEADERS = DEFAULT_ALLOWED_HEADERS.map((header) => header.toLowerCase());
+
+function buildAllowedHeaders(configured: readonly string[], requested: string[]): string[] {
+  const normalizedConfigured = configured.map(normalizeHeaderName).filter(Boolean);
+  const allHeaders = new Set<string>(ESSENTIAL_HEADERS);
+  for (const header of normalizedConfigured) {
+    allHeaders.add(header);
+  }
+  for (const header of requested) {
+    allHeaders.add(header);
+  }
+  return Array.from(allHeaders);
+}
 
 function resolveAllowedOrigin(requestOrigin: string | undefined): string | undefined {
   if (!requestOrigin) {
@@ -26,7 +41,7 @@ export function corsHandler(req: Request, res: Response, next: NextFunction): vo
   const requestedHeaders = requestedHeadersRaw
     ? requestedHeadersRaw
         .split(',')
-        .map((header) => header.trim().toLowerCase())
+        .map(normalizeHeaderName)
         .filter(Boolean)
     : [];
 
@@ -41,12 +56,11 @@ export function corsHandler(req: Request, res: Response, next: NextFunction): vo
   res.append('Vary', 'Access-Control-Request-Headers');
   res.append('Vary', 'Access-Control-Request-Method');
   res.header('Access-Control-Allow-Methods', corsConfig.allowedMethods.join(','));
-  if (corsConfig.allowedHeaders.includes('*')) {
-    res.header('Access-Control-Allow-Headers', '*');
-  } else {
-    const mergedHeaders = Array.from(new Set([...corsConfig.allowedHeaders, ...requestedHeaders]));
-    res.header('Access-Control-Allow-Headers', mergedHeaders.join(','));
-  }
+
+  const hasWildcard = corsConfig.allowedHeaders.includes('*');
+  const baseHeaders = hasWildcard ? requestedHeaders : corsConfig.allowedHeaders;
+  const allowHeaders = buildAllowedHeaders(baseHeaders, requestedHeaders);
+  res.header('Access-Control-Allow-Headers', allowHeaders.join(','));
   res.header('Access-Control-Max-Age', String(corsConfig.maxAgeSeconds));
   res.header('Access-Control-Expose-Headers', corsConfig.exposeHeaders.join(','));
 

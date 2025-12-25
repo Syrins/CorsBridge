@@ -2,7 +2,9 @@ import http from 'http';
 import express, { type NextFunction, type Request, type Response } from 'express';
 import compression from 'compression';
 import helmet from 'helmet';
+import * as Sentry from '@sentry/node';
 import v8 from 'v8';
+import * as path from 'path';
 
 import { securityConfig } from './config/security.config';
 import { corsHandler } from './middleware/corsHandler';
@@ -19,9 +21,15 @@ import { getHelpContent, showHelpOnRoot } from './services/help.service';
 import { metricsService } from './services/metrics.service';
 import { analyticsTracker } from './services/analytics.service';
 import { cacheService } from './services/cache.service';
+import { circuitBreakerService } from './services/circuit-breaker.service';
+import { getActiveRequestCount } from './middleware/requestLogger';
+
+import { appConfig } from './config/app.config';
+
+const SERVER_START_TIME = Date.now();
 
 const MEMORY_WARNING_PERCENT = (() => {
-  const value = Number(process.env.HEALTH_MEMORY_WARNING_PERCENT);
+  const value = appConfig.healthMemoryWarningPercent;
   if (Number.isFinite(value)) {
     return Math.min(Math.max(value, 1), 100);
   }
@@ -29,7 +37,7 @@ const MEMORY_WARNING_PERCENT = (() => {
 })();
 
 const MIN_HEAP_FLOOR_MB = (() => {
-  const value = Number(process.env.HEALTH_MIN_HEAP_MB);
+  const value = appConfig.healthMinHeapMb;
   if (Number.isFinite(value)) {
     return Math.max(value, 64);
   }
@@ -74,7 +82,7 @@ function checkMemoryHealth(): { status: string; heapUsed: number; heapTotal: num
 /**
  * Check cache health
  */
-function checkCacheHealth(): { status: string; enabled: boolean; stats: unknown } {
+async function checkCacheHealth(): Promise<{ status: string; enabled: boolean; stats: unknown }> {
   if (!cacheService.isEnabled()) {
     return {
       status: 'ok',
@@ -84,7 +92,7 @@ function checkCacheHealth(): { status: string; enabled: boolean; stats: unknown 
   }
 
   try {
-    const stats = cacheService.getStats();
+    const stats = await cacheService.getStats();
     return {
       status: 'ok',
       enabled: true,
@@ -153,39 +161,76 @@ export async function createServer(): Promise<http.Server> {
     });
   });
 
-  app.get('/health', (_req: Request, res: Response) => {
+  /**
+   * Check circuit breaker health
+   */
+  async function checkCircuitBreakerHealth(): Promise<{ status: string; total: number; open: number; stats: unknown }> {
+    try {
+      const states = circuitBreakerService.getAllStates();
+      const total = Object.keys(states).length;
+      let open = 0;
+
+      for (const key in states) {
+        if ((states[key] as any).state === 'OPEN') open++;
+      }
+
+      return {
+        status: open > (total * 0.5) && total > 10 ? 'degraded' : 'ok',
+        total,
+        open,
+        stats: states
+      };
+    } catch (error) {
+      return { status: 'error', total: 0, open: 0, stats: null };
+    }
+  }
+
+  app.get('/health', async (_req: Request, res: Response) => {
     applyHealthCors(res);
-    res.status(200).json({
-      status: 'ok',
-      uptime: process.uptime(),
+    const memory = checkMemoryHealth();
+    const cache = await checkCacheHealth();
+    const circuitBreaker = await checkCircuitBreakerHealth();
+    const activeRequests = getActiveRequestCount();
+
+    const uptime = (Date.now() - SERVER_START_TIME) / 1000;
+
+    const status =
+      memory.status === 'error' || cache.status === 'error' ? 'error' :
+        memory.status === 'warning' || circuitBreaker.status === 'degraded' ? 'degraded' :
+          'ok';
+
+    res.status(status === 'error' ? 503 : 200).json({
+      status,
+      uptime,
       timestamp: new Date().toISOString(),
+      system: {
+        memory,
+        activeRequests,
+      },
+      components: {
+        cache,
+        circuitBreaker: {
+          status: circuitBreaker.status,
+          totalCircuits: circuitBreaker.total,
+          openCircuits: circuitBreaker.open
+        }
+      }
     });
   });
 
   app.get('/health/ready', async (_req: Request, res: Response) => {
     applyHealthCors(res);
-    const health = {
-      status: 'ready',
-      uptime: process.uptime(),
-      timestamp: new Date().toISOString(),
-      checks: {
-        memory: checkMemoryHealth(),
-        cache: checkCacheHealth(),
-      },
-    };
-
-    const allHealthy = Object.values(health.checks).every((check) => check.status === 'ok');
-
-    res.status(allHealthy ? 200 : 503).json(health);
+    const memory = checkMemoryHealth();
+    if (memory.status === 'error') {
+      res.status(503).json({ status: 'not ready', reason: 'memory critical' });
+      return;
+    }
+    res.status(200).json({ status: 'ready' });
   });
 
   app.get('/health/live', (_req: Request, res: Response) => {
     applyHealthCors(res);
-    res.status(200).json({
-      status: 'alive',
-      uptime: process.uptime(),
-      timestamp: Date.now(),
-    });
+    res.status(200).json({ status: 'live', uptime: (Date.now() - SERVER_START_TIME) / 1000 });
   });
 
   app.get('/help', (_req: Request, res: Response) => {
@@ -196,15 +241,7 @@ export async function createServer(): Promise<http.Server> {
       .send(getHelpContent());
   });
 
-  app.get('/metrics', (_req: Request, res: Response) => {
-    const snapshot = metricsService.getSnapshot();
-    res.status(200).json({
-      ...snapshot,
-      topOrigins: analyticsTracker.getTopOrigins(),
-      timestamp: new Date().toISOString(),
-    });
-  });
-
+  // Prometheus metrics endpoint
   app.get('/metrics/prometheus', (_req: Request, res: Response) => {
     const prometheusMetrics = metricsService.exportPrometheus();
     res
@@ -213,8 +250,22 @@ export async function createServer(): Promise<http.Server> {
       .send(prometheusMetrics);
   });
 
+  // Unified JSON stats endpoint
+  app.get('/stats', (req, res) => {
+    const snapshot = metricsService.getSnapshot();
+    res.json({
+      ...snapshot,
+      topOrigins: analyticsTracker.getTopOrigins(),
+      timestamp: new Date().toISOString(),
+    });
+  });
+
+  app.get('/dashboard', (req, res) => {
+    const htmlPath = path.join(__dirname, 'public', 'dashboard.html');
+    res.sendFile(htmlPath);
+  });
+
   app.get('/circuit-breakers', (_req: Request, res: Response) => {
-    const { circuitBreakerService } = require('./services/circuit-breaker.service');
     const states = circuitBreakerService.getAllStates();
     res.status(200).json({
       circuits: states,
@@ -231,7 +282,7 @@ export async function createServer(): Promise<http.Server> {
     if (!showHelpOnRoot) {
       res.status(200).json({
         name: 'CorsBridge',
-        version: process.env.PROXY_VERSION ?? 'dev',
+        version: appConfig.proxyVersion,
         message: 'Proxy endpoint ready • built by Syrins (syrins.tech). Use /?url={TARGET_URL}.',
       });
       return;
@@ -244,9 +295,11 @@ export async function createServer(): Promise<http.Server> {
       .send(getHelpContent());
   });
 
+
   app.use(urlValidationMiddleware);
   app.use('/', proxyRouter);
 
+  // Sentry Error Handler removed in favor of manual capture in errorHandler
   app.use(errorHandler);
 
   const server = http.createServer({ maxHeaderSize: securityConfig.maxHeaderSize }, app);

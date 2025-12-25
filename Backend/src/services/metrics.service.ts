@@ -38,6 +38,10 @@ class MetricsService {
 
 	private rateLimitHits = 0;
 
+	private throttledRequests = 0;
+
+	private totalThrottleDelay = 0;
+
 	private readonly responseTimes = new Float64Array(this.maxResponseTimeSamples);
 
 	private responseSampleCount = 0;
@@ -69,20 +73,29 @@ class MetricsService {
 		this.rateLimitHits += 1;
 	}
 
+	recordThrottle(delay: number): void {
+		this.throttledRequests += 1;
+		this.totalThrottleDelay += delay;
+	}
+
 	private recordTarget(target: string): void {
 		this.targetCounts.set(target, (this.targetCounts.get(target) ?? 0) + 1);
-		if (this.targetCounts.size <= this.maxTrackedTargets) {
+
+		// Optimization: Only prune periodically (e.g. every 100 requests) or when size >> max
+		// to avoid O(N log N) sort on every single request.
+		const PRUNE_THRESHOLD_FACTOR = 1.25;
+
+		if (this.targetCounts.size <= this.maxTrackedTargets * PRUNE_THRESHOLD_FACTOR) {
 			return;
 		}
 
-		const excess = this.targetCounts.size - this.maxTrackedTargets;
-		if (excess <= 0) {
-			return;
-		}
+		// Prune down to maxTrackedTargets
+		const sorted = Array.from(this.targetCounts.entries()).sort((a, b) => b[1] - a[1]); // Descending
 
-		const sorted = Array.from(this.targetCounts.entries()).sort((a, b) => a[1] - b[1]);
-		for (const [targetToRemove] of sorted.slice(0, excess)) {
-			this.targetCounts.delete(targetToRemove);
+		// Keep top N, delete the rest
+		const toRemove = sorted.slice(this.maxTrackedTargets);
+		for (const [targetKey] of toRemove) {
+			this.targetCounts.delete(targetKey);
 		}
 	}
 
@@ -130,19 +143,11 @@ class MetricsService {
 		};
 	}
 
-	getSnapshot(): {
-		totalRequests: number;
-		errorRate: number;
-		avgResponseTime: number;
-		percentiles: ResponseTimePercentiles;
-		topTargets: TargetStat[];
-		methodDistribution: Array<{ method: string; count: number }>;
-		statusCodeDistribution: Array<{ statusCode: number; count: number }>;
-		rateLimitHits: number;
-		cache: Record<CacheEvent, number>;
-		uptime: number;
-		memory: NodeJS.MemoryUsage;
-	} {
+	getMetrics(): object {
+		return this.getSnapshot();
+	}
+
+	getSnapshot(): object {
 		const avgResponseTime = this.totalRequests === 0 ? 0 : this.totalDuration / this.totalRequests;
 		const errorRate = this.totalRequests === 0 ? 0 : this.errorCount / this.totalRequests;
 
@@ -166,6 +171,7 @@ class MetricsService {
 			methodDistribution,
 			statusCodeDistribution,
 			rateLimitHits: this.rateLimitHits,
+			throttledRequests: this.throttledRequests,
 			cache: { ...this.cacheEvents },
 			uptime: process.uptime(),
 			memory: process.memoryUsage(),

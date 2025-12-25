@@ -2,6 +2,7 @@ import { promises as dns } from 'dns';
 import net from 'net';
 import { LRUCache } from 'lru-cache';
 
+import { appConfig } from '../config/app.config';
 import { ValidationError } from './errors';
 import { isPrivateIp, normalizeIp } from './ip.utils';
 
@@ -26,7 +27,7 @@ const SUSPICIOUS_HOST_PATTERNS = [
 
 const dnsCache = new LRUCache<string, string[]>({
   max: 500,
-  ttl: Number(process.env.DNS_CACHE_TTL_MS ?? 60_000),
+  ttl: appConfig.dnsCacheTtlMs,
 });
 
 function isBlockedHostname(hostname: string): boolean {
@@ -55,7 +56,7 @@ async function resolveAddresses(hostname: string): Promise<string[]> {
 }
 
 async function assertNotPrivate(hostname: string): Promise<void> {
-  if (process.env.ALLOW_PRIVATE_NETWORKS === 'true') {
+  if (appConfig.allowPrivateNetworks) {
     return;
   }
 

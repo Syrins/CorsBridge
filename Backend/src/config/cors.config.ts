@@ -32,7 +32,7 @@ const parseBoolean = (value: string | undefined, fallback: boolean): boolean => 
 };
 
 const DEFAULT_METHODS = ['GET', 'HEAD', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'] as const;
-const DEFAULT_HEADERS = [
+export const DEFAULT_ALLOWED_HEADERS = [
   'accept',
   'content-type',
   'authorization',
@@ -42,7 +42,7 @@ const DEFAULT_HEADERS = [
   'x-proxy-cache',
   'cache-control',
   'pragma',
-];
+] as const;
 
 export interface CorsConfig {
   readonly allowedOrigins: readonly string[];
@@ -54,11 +54,11 @@ export interface CorsConfig {
   readonly poweredByHeader: boolean;
 }
 
-const allowedHeaders = parseList(process.env.CORS_ALLOWED_HEADERS, DEFAULT_HEADERS, (header) => header.toLowerCase());
+const allowedHeaders = parseList(process.env.CORS_ALLOWED_HEADERS, DEFAULT_ALLOWED_HEADERS, (header) => header.toLowerCase());
 const allowedMethods = parseList(process.env.CORS_ALLOWED_METHODS, DEFAULT_METHODS, (method) => method.toUpperCase());
 
 if (allowedHeaders.length === 0) {
-  allowedHeaders.push(...DEFAULT_HEADERS);
+  allowedHeaders.push(...DEFAULT_ALLOWED_HEADERS);
 }
 
 if (allowedMethods.length === 0) {

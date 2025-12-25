@@ -10,6 +10,8 @@ export interface RateLimitConfig {
 	readonly enableRedis: boolean;
 	readonly redisUrl?: string;
 	readonly abuseMonitoringEnabled: boolean;
+	readonly abuseBlockDurationMinutes: number;
+	readonly abuseSpikeThreshold: number;
 	readonly whitelistExact: string[];
 	readonly whitelistCidrs: string[];
 }
@@ -58,15 +60,17 @@ const whitelist = parseWhitelist(process.env.RATE_LIMIT_WHITELIST);
 export const rateLimitConfig: RateLimitConfig = {
 	windowMs: parseIntWithFloor(process.env.RATE_LIMIT_WINDOW_MS, 600_000),
 	maxRequests: parseIntWithFloor(process.env.RATE_LIMIT_MAX_REQUESTS, 200),
-	dailyLimit: parseIntWithFloor(process.env.RATE_LIMIT_DAILY_LIMIT, 2_000, { allowZero: true }),
+	dailyLimit: parseIntWithFloor(process.env.RATE_LIMIT_DAILY_MAX, 200000),
 	skipFailedRequests: process.env.RATE_LIMIT_SKIP_FAILED === 'true',
-	skipSuccessfulRequests: process.env.RATE_LIMIT_SKIP_SUCCESS === 'true',
-	skipOptions: process.env.RATE_LIMIT_SKIP_OPTIONS === 'true',
-	warnThreshold: parseIntWithFloor(process.env.ABUSE_WARN_THRESHOLD, 500, { allowZero: true }),
-	alertThreshold: parseIntWithFloor(process.env.ABUSE_ALERT_THRESHOLD, 1_000, { allowZero: true }),
-	enableRedis: redisEnabled,
-	redisUrl,
-	abuseMonitoringEnabled: process.env.ABUSE_DETECTION !== 'false',
+	skipSuccessfulRequests: process.env.RATE_LIMIT_SKIP_SUCCESSFUL === 'true',
+	skipOptions: process.env.RATE_LIMIT_SKIP_OPTIONS !== 'false',
+	warnThreshold: parseIntWithFloor(process.env.RATE_LIMIT_WARN_THRESHOLD, 0, { allowZero: true }),
+	alertThreshold: parseIntWithFloor(process.env.RATE_LIMIT_ALERT_THRESHOLD, 0, { allowZero: true }),
+	enableRedis: process.env.RATE_LIMIT_ENABLE_REDIS === 'true',
+	redisUrl: process.env.RATE_LIMIT_REDIS_URL || process.env.REDIS_URL,
+	abuseMonitoringEnabled: process.env.ABUSE_MONITOR_ENABLED !== 'false',
+	abuseBlockDurationMinutes: parseIntWithFloor(process.env.ABUSE_BLOCK_DURATION_MINUTES, 15),
+	abuseSpikeThreshold: parseIntWithFloor(process.env.ABUSE_SPIKE_THRESHOLD, 200),
 	whitelistExact: whitelist.exact,
 	whitelistCidrs: whitelist.cidrs,
 };
